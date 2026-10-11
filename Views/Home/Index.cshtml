@@ -1,0 +1,238 @@
+@model NexusStore.Models.ViewModels.HomeViewModel
+@{
+    ViewData["Title"] = "Modern Electronics, Home & Lifestyle Goods";
+}
+
+<!-- Hero Section -->
+<div class="container-fluid px-3 px-md-4">
+    <section class="hero-banner" id="heroBanner">
+        <div class="hero-content">
+            <div class="hero-tag">
+                <span>✦</span>
+                <span>ASP.NET 10 Core Demo Store</span>
+            </div>
+            <h1 class="hero-title">
+                Curated Tech, Home & Everyday Gear.
+            </h1>
+            <p class="hero-subtitle">
+                Experience high-performance design, minimalist aesthetics, and engineered precision. Built to demonstrate a production-ready e-commerce store for modern freelance projects.
+            </p>
+            <div class="hero-cta-group">
+                <a asp-controller="Shop" asp-action="Index" class="btn-nexus-primary" id="btnHeroShop">
+                    Explore All Products →
+                </a>
+                <a asp-controller="Shop" asp-action="Index" asp-route-category="electronics" class="btn-nexus-secondary">
+                    Browse Tech & Audio
+                </a>
+            </div>
+        </div>
+    </section>
+</div>
+
+<!-- Trust & Value Badges -->
+<div class="benefits-row">
+    <div class="benefit-card">
+        <div class="benefit-icon" style="background: #fef3c7; color: #d97706;">🚀</div>
+        <div>
+            <div class="benefit-title">Complimentary Express Shipping</div>
+            <div class="benefit-desc">Free worldwide tracking on all orders over $100.</div>
+        </div>
+    </div>
+    <div class="benefit-card">
+        <div class="benefit-icon" style="background: #ffedd5; color: #ea580c;">🛡️</div>
+        <div>
+            <div class="benefit-title">30-Day Risk-Free Guarantee</div>
+            <div class="benefit-desc">Hassle-free exchanges and instant refunds.</div>
+        </div>
+    </div>
+    <div class="benefit-card">
+        <div class="benefit-icon" style="background: #fef9c3; color: #ca8a04;">🔒</div>
+        <div>
+            <div class="benefit-title">Encrypted Checkout Flow</div>
+            <div class="benefit-desc">Simulated checkout with instant validation.</div>
+        </div>
+    </div>
+    <div class="benefit-card">
+        <div class="benefit-icon" style="background: #ffedd5; color: #f97316;">⚡</div>
+        <div>
+            <div class="benefit-title">ASP.NET 10 Performance</div>
+            <div class="benefit-desc">Ultra-fast response times, EF Core SQLite backend.</div>
+        </div>
+    </div>
+</div>
+
+<!-- Categories Showcase -->
+<section class="categories-showcase">
+    <div class="section-header">
+        <div>
+            <h2 class="section-title">Shop by Category</h2>
+            <div class="section-subtitle">Discover thoughtfully designed goods made for every facet of your day.</div>
+        </div>
+        <a asp-controller="Shop" asp-action="Index" class="btn-nexus-outline d-none d-sm-inline-flex">
+            All Collections →
+        </a>
+    </div>
+
+    <div class="category-grid">
+        @foreach (var cat in Model.Categories)
+        {
+            <div class="category-card" style="background-image: url('@cat.ImageUrl');">
+                <div class="category-card-content">
+                    <h3 class="category-card-title">@cat.Name</h3>
+                    <p class="category-card-desc">@cat.Description</p>
+                    <a asp-controller="Shop" asp-action="Index" asp-route-category="@cat.Slug" class="category-card-link">
+                        Explore Category <span>→</span>
+                    </a>
+                </div>
+            </div>
+        }
+    </div>
+</section>
+
+<!-- Featured Products Section -->
+<section class="products-container">
+    <div class="section-header">
+        <div>
+            <h2 class="section-title">Featured Products</h2>
+            <div class="section-subtitle">Hand-picked gear that blends innovative utility with striking design.</div>
+        </div>
+        <a asp-controller="Shop" asp-action="Index" class="btn-nexus-outline">
+            View All (@Model.FeaturedProducts.Count +) →
+        </a>
+    </div>
+
+    <div class="product-grid">
+        @foreach (var product in Model.FeaturedProducts)
+        {
+            <div class="product-card" id="product-card-@product.Id">
+                <div class="product-img-wrap">
+                    @if (!string.IsNullOrEmpty(product.Badge))
+                    {
+                        <span class="product-badge @(product.Badge.Contains("Sale") || product.Badge.Contains("%") ? "sale" : "top-seller")">
+                            @product.Badge
+                        </span>
+                    }
+                    <a asp-controller="Shop" asp-action="Details" asp-route-id="@product.Id" asp-route-slug="@product.Slug">
+                        <img src="@product.ImageUrl" alt="@product.Name" loading="lazy" />
+                    </a>
+                </div>
+
+                <div class="product-body">
+                    <div class="product-category-chip">@product.Category?.Name</div>
+                    <a asp-controller="Shop" asp-action="Details" asp-route-id="@product.Id" asp-route-slug="@product.Slug">
+                        <h3 class="product-name">@product.Name</h3>
+                    </a>
+                    <p class="product-desc-snippet">@product.ShortDescription</p>
+
+                    <div class="product-rating">
+                        <span>★</span>
+                        <span class="product-rating-score">@product.Rating.ToString("0.0")</span>
+                        <span class="product-rating-count">(@product.ReviewCount reviews)</span>
+                    </div>
+
+                    <div class="product-footer">
+                        <div class="product-price-box">
+                            <span class="product-price">$@product.Price.ToString("0.00")</span>
+                            @if (product.CompareAtPrice.HasValue && product.CompareAtPrice > product.Price)
+                            {
+                                <span class="product-compare-price">$@product.CompareAtPrice.Value.ToString("0.00")</span>
+                            }
+                        </div>
+
+                        <button type="button" 
+                                class="btn-add-cart-quick" 
+                                data-quick-add="@product.Id"
+                                title="Add to cart"
+                                aria-label="Add @product.Name to cart">
+                            +
+                        </button>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</section>
+
+<!-- Warm Solar Promo Banner (Matching Hero Background) -->
+<div class="container-fluid px-3 px-md-4 my-5">
+    <div class="promo-banner text-center" id="promoBanner">
+        <div style="position: relative; z-index: 2; max-width: 720px; margin: 0 auto;">
+            <div class="hero-tag mb-3">
+                <span>✦</span>
+                <span>PROMO CODE AVAILABLE</span>
+            </div>
+            <h2 style="font-size: 2.8rem; font-weight: 800; margin-bottom: 1rem; background: linear-gradient(135deg, #431407 0%, #9a3412 50%, #ea580c 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                Experience the Future of Everyday Goods
+            </h2>
+            <p class="hero-subtitle mb-4 mx-auto" style="max-width: 620px;">
+                Try code <code style="background: #ffffff; padding: 5px 12px; border-radius: 8px; color: #c2410c; font-weight: 800; border: 1.5px solid #fed7aa; box-shadow: 0 2px 6px rgba(249, 115, 22, 0.15);">DEMO20</code> at checkout to unlock an instant 20% discount across all products!
+            </p>
+            <div class="hero-cta-group justify-content-center">
+                <a asp-controller="Shop" asp-action="Index" class="btn-nexus-primary">
+                    Shop Now with Discount →
+                </a>
+                <a asp-controller="Admin" asp-action="Index" class="btn-nexus-secondary">
+                    View Admin Metrics
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Trending Deals Section -->
+@if (Model.TrendingDeals.Any())
+{
+    <section class="products-container mt-5">
+        <div class="section-header">
+            <div>
+                <h2 class="section-title">Special Offers & Deals</h2>
+                <div class="section-subtitle">Premium goods at special limited-time demonstration pricing.</div>
+            </div>
+        </div>
+
+        <div class="product-grid">
+            @foreach (var product in Model.TrendingDeals)
+            {
+                <div class="product-card" id="deal-card-@product.Id">
+                    <div class="product-img-wrap">
+                        <span class="product-badge sale">Save @product.DiscountPercent%</span>
+                        <a asp-controller="Shop" asp-action="Details" asp-route-id="@product.Id" asp-route-slug="@product.Slug">
+                            <img src="@product.ImageUrl" alt="@product.Name" loading="lazy" />
+                        </a>
+                    </div>
+
+                    <div class="product-body">
+                        <div class="product-category-chip">@product.Category?.Name</div>
+                        <a asp-controller="Shop" asp-action="Details" asp-route-id="@product.Id" asp-route-slug="@product.Slug">
+                            <h3 class="product-name">@product.Name</h3>
+                        </a>
+                        <p class="product-desc-snippet">@product.ShortDescription</p>
+
+                        <div class="product-rating">
+                            <span>★</span>
+                            <span class="product-rating-score">@product.Rating.ToString("0.0")</span>
+                            <span class="product-rating-count">(@product.ReviewCount reviews)</span>
+                        </div>
+
+                        <div class="product-footer">
+                            <div class="product-price-box">
+                                <span class="product-price">$@product.Price.ToString("0.00")</span>
+                                @if (product.CompareAtPrice.HasValue)
+                                {
+                                    <span class="product-compare-price">$@product.CompareAtPrice.Value.ToString("0.00")</span>
+                                }
+                            </div>
+
+                            <button type="button" 
+                                    class="btn-add-cart-quick" 
+                                    data-quick-add="@product.Id"
+                                    title="Add to cart">
+                                +
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </section>
+}

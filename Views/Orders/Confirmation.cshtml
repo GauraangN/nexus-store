@@ -1,0 +1,131 @@
+@model NexusStore.Models.Order
+@{
+    ViewData["Title"] = "Order Confirmation - " + Model.OrderNumber;
+}
+
+<div class="container-fluid px-3 px-md-4 py-5 max-w-1320" style="max-width: 960px; margin: 0 auto;">
+    <!-- Confirmation Banner -->
+    <div class="bg-white border rounded-4 p-5 shadow-sm text-center mb-4">
+        <div style="font-size: 3.5rem; color: #10b981; line-height: 1;">✓</div>
+        <h1 class="fw-bold mt-3 mb-2" style="font-size: 2.4rem;">Order Confirmed!</h1>
+        <p class="text-muted fs-5 mb-3">
+            Thank you for your purchase, <strong>@Model.CustomerName</strong>. A confirmation email has been sent to <strong>@Model.CustomerEmail</strong>.
+        </p>
+        <div class="d-inline-flex align-items-center gap-2 bg-light border px-4 py-2 rounded-pill font-monospace fw-bold fs-5 text-primary">
+            Order Reference: @Model.OrderNumber
+        </div>
+    </div>
+
+    <!-- Visual Order Tracker -->
+    <div class="bg-white border rounded-4 p-4 shadow-sm mb-4">
+        <h5 class="fw-bold mb-4">Order Status Progress</h5>
+
+        <div class="order-tracker-bar">
+            <!-- Step 1: Placed -->
+            <div class="tracker-step completed">
+                <div class="tracker-dot">✓</div>
+                <div class="small fw-bold">Placed</div>
+                <div class="text-muted" style="font-size: 0.72rem;">@Model.CreatedAt.ToString("MMM dd, HH:mm")</div>
+            </div>
+
+            <!-- Step 2: Processing -->
+            <div class="tracker-step @(Model.Status >= NexusStore.Models.OrderStatus.Processing ? "completed" : "")">
+                <div class="tracker-dot">
+                    @(Model.Status >= NexusStore.Models.OrderStatus.Processing ? "✓" : "2")
+                </div>
+                <div class="small fw-bold">Processing</div>
+                <div class="text-muted" style="font-size: 0.72rem;">In Warehouse</div>
+            </div>
+
+            <!-- Step 3: Shipped -->
+            <div class="tracker-step @(Model.Status >= NexusStore.Models.OrderStatus.Shipped ? "completed" : "")">
+                <div class="tracker-dot">
+                    @(Model.Status >= NexusStore.Models.OrderStatus.Shipped ? "✓" : "3")
+                </div>
+                <div class="small fw-bold">Dispatched</div>
+                <div class="text-muted" style="font-size: 0.72rem;">Courier Transit</div>
+            </div>
+
+            <!-- Step 4: Delivered -->
+            <div class="tracker-step @(Model.Status == NexusStore.Models.OrderStatus.Delivered ? "completed" : "")">
+                <div class="tracker-dot">
+                    @(Model.Status == NexusStore.Models.OrderStatus.Delivered ? "✓" : "4")
+                </div>
+                <div class="small fw-bold">Delivered</div>
+                <div class="text-muted" style="font-size: 0.72rem;">Destination</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Details & Items -->
+    <div class="row g-4">
+        <!-- Customer & Shipping info -->
+        <div class="col-md-6">
+            <div class="bg-white border rounded-4 p-4 shadow-sm h-100">
+                <h5 class="fw-bold mb-3">Delivery Information</h5>
+                <p class="mb-1 fw-bold">@Model.CustomerName</p>
+                <p class="mb-1 text-muted">@Model.ShippingAddress</p>
+                <p class="mb-1 text-muted">@Model.City, @Model.State @Model.PostalCode</p>
+                <p class="mb-3 text-muted">@Model.Country</p>
+
+                <div class="small text-muted mb-1"><strong>Phone:</strong> @Model.CustomerPhone</div>
+                <div class="small text-muted mb-1"><strong>Email:</strong> @Model.CustomerEmail</div>
+                <div class="small text-muted"><strong>Payment:</strong> @Model.PaymentMethod</div>
+            </div>
+        </div>
+
+        <!-- Receipt Summary -->
+        <div class="col-md-6">
+            <div class="bg-white border rounded-4 p-4 shadow-sm h-100">
+                <h5 class="fw-bold mb-3">Order Receipt</h5>
+
+                <div class="d-flex flex-column gap-2 mb-3">
+                    @foreach (var item in Model.Items)
+                    {
+                        <div class="d-flex justify-content-between align-items-center text-sm py-1 border-bottom">
+                            <div>
+                                <div class="fw-bold small">@item.ProductName</div>
+                                <div class="text-muted" style="font-size: 0.78rem;">Qty: @item.Quantity × $@item.UnitPrice.ToString("0.00")</div>
+                            </div>
+                            <div class="fw-semibold small">$@item.TotalPrice.ToString("0.00")</div>
+                        </div>
+                    }
+                </div>
+
+                <div class="d-flex justify-content-between small text-muted mb-1">
+                    <span>Subtotal</span>
+                    <span>$@Model.Subtotal.ToString("0.00")</span>
+                </div>
+                @if (Model.DiscountAmount > 0)
+                {
+                    <div class="d-flex justify-content-between small text-success mb-1">
+                        <span>Discount (@Model.PromoCode)</span>
+                        <span>−$@Model.DiscountAmount.ToString("0.00")</span>
+                    </div>
+                }
+                <div class="d-flex justify-content-between small text-muted mb-1">
+                    <span>Shipping</span>
+                    <span>@(Model.ShippingFee == 0 ? "FREE" : $"${Model.ShippingFee:0.00}")</span>
+                </div>
+                <div class="d-flex justify-content-between small text-muted mb-2">
+                    <span>Sales Tax</span>
+                    <span>$@Model.TaxAmount.ToString("0.00")</span>
+                </div>
+                <div class="d-flex justify-content-between fs-5 fw-bold text-dark pt-2 border-top">
+                    <span>Total Paid</span>
+                    <span class="text-primary font-monospace">$@Model.TotalAmount.ToString("0.00")</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="d-flex justify-content-center gap-3 mt-4">
+        <button type="button" class="btn-nexus-outline px-4" onclick="window.print()">
+            🖨️ Print Receipt
+        </button>
+        <a asp-controller="Shop" asp-action="Index" class="btn-nexus-primary">
+            Continue Shopping →
+        </a>
+    </div>
+</div>

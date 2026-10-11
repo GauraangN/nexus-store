@@ -1,0 +1,127 @@
+@model List<NexusStore.Models.Order>
+@{
+    ViewData["Title"] = "Customer Orders Management";
+    var selectedStatus = ViewBag.SelectedStatus as NexusStore.Models.OrderStatus?;
+}
+
+<div class="container-fluid px-3 px-md-4 py-4" style="max-width: 1320px; margin: 0 auto;">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4 pb-3 border-bottom">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-1" style="font-size: 0.85rem;">
+                    <li class="breadcrumb-item"><a asp-action="Index">Admin</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Orders</li>
+                </ol>
+            </nav>
+            <h1 class="fw-bold mb-0" style="font-size: 2rem;">Orders & Fulfillment</h1>
+        </div>
+
+        <div class="d-flex gap-2">
+            <a asp-action="Index" class="btn btn-outline-secondary rounded-pill px-3">
+                ← Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    <!-- Status Tabs Filter -->
+    <div class="d-flex gap-2 flex-wrap mb-4">
+        <a asp-action="Orders" class="btn btn-sm @(!selectedStatus.HasValue ? "btn-primary" : "btn-outline-primary") rounded-pill px-3">
+            All Orders (@Model.Count)
+        </a>
+        <a asp-action="Orders" asp-route-status="@NexusStore.Models.OrderStatus.Processing" 
+           class="btn btn-sm @(selectedStatus == NexusStore.Models.OrderStatus.Processing ? "btn-primary" : "btn-outline-primary") rounded-pill px-3">
+            Processing
+        </a>
+        <a asp-action="Orders" asp-route-status="@NexusStore.Models.OrderStatus.Shipped" 
+           class="btn btn-sm @(selectedStatus == NexusStore.Models.OrderStatus.Shipped ? "btn-warning text-dark" : "btn-outline-warning") rounded-pill px-3">
+            Shipped
+        </a>
+        <a asp-action="Orders" asp-route-status="@NexusStore.Models.OrderStatus.Delivered" 
+           class="btn btn-sm @(selectedStatus == NexusStore.Models.OrderStatus.Delivered ? "btn-success" : "btn-outline-success") rounded-pill px-3">
+            Delivered
+        </a>
+        <a asp-action="Orders" asp-route-status="@NexusStore.Models.OrderStatus.Cancelled" 
+           class="btn btn-sm @(selectedStatus == NexusStore.Models.OrderStatus.Cancelled ? "btn-danger" : "btn-outline-danger") rounded-pill px-3">
+            Cancelled
+        </a>
+    </div>
+
+    <!-- Orders Table -->
+    <div class="bg-white border rounded-4 p-4 shadow-sm">
+        @if (Model.Count == 0)
+        {
+            <div class="text-center py-5">
+                <h5>No orders found in this category.</h5>
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead class="text-muted small text-uppercase">
+                        <tr>
+                            <th>Order Reference</th>
+                            <th>Customer & Shipping</th>
+                            <th>Items Purchased</th>
+                            <th>Total Amount</th>
+                            <th>Update Fulfillment Status</th>
+                            <th class="text-end">Receipt</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var order in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <div class="font-monospace fw-bold text-primary">@order.OrderNumber</div>
+                                    <div class="text-muted small">@order.CreatedAt.ToString("MMM dd, yyyy HH:mm")</div>
+                                    <div class="text-muted" style="font-size: 0.72rem;">@order.PaymentMethod</div>
+                                </td>
+                                <td>
+                                    <div class="fw-bold small">@order.CustomerName</div>
+                                    <div class="text-muted small">@order.CustomerEmail</div>
+                                    <div class="text-muted" style="font-size: 0.72rem;">@order.City, @order.State, @order.Country</div>
+                                </td>
+                                <td>
+                                    <div class="small fw-semibold">@order.Items.Sum(i => i.Quantity) item(s)</div>
+                                    <div class="text-muted" style="font-size: 0.75rem;">
+                                        @string.Join(", ", order.Items.Take(2).Select(i => i.ProductName))
+                                        @(order.Items.Count > 2 ? $" +{order.Items.Count - 2} more" : "")
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="fw-bold font-monospace fs-6">$@order.TotalAmount.ToString("0.00")</div>
+                                    @if (order.DiscountAmount > 0)
+                                    {
+                                        <div class="text-success" style="font-size: 0.72rem;">Discount applied</div>
+                                    }
+                                </td>
+                                <td>
+                                    <form method="post" asp-action="UpdateOrderStatus" class="d-flex align-items-center gap-2">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="orderId" value="@order.Id" />
+                                        <select name="status" class="form-select form-select-sm rounded-pill" style="min-width: 140px;">
+                                            <option value="Pending" selected="@(order.Status == NexusStore.Models.OrderStatus.Pending)">Pending</option>
+                                            <option value="Processing" selected="@(order.Status == NexusStore.Models.OrderStatus.Processing)">Processing</option>
+                                            <option value="Shipped" selected="@(order.Status == NexusStore.Models.OrderStatus.Shipped)">Shipped</option>
+                                            <option value="Delivered" selected="@(order.Status == NexusStore.Models.OrderStatus.Delivered)">Delivered</option>
+                                            <option value="Cancelled" selected="@(order.Status == NexusStore.Models.OrderStatus.Cancelled)">Cancelled</option>
+                                        </select>
+                                        <button type="submit" class="btn btn-sm btn-primary rounded-pill px-3">Update</button>
+                                    </form>
+                                </td>
+                                <td class="text-end">
+                                    <a asp-controller="Orders" asp-action="Confirmation" asp-route-orderNumber="@order.OrderNumber" 
+                                       target="_blank" class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                                        View Receipt ↗
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>

@@ -1,0 +1,210 @@
+@model NexusStore.Models.ViewModels.ShopViewModel
+@{
+    ViewData["Title"] = "Catalog & Shop";
+}
+
+<div class="container-fluid px-3 px-md-4 py-4 max-w-1320" style="max-width: 1320px; margin: 0 auto;">
+    <!-- Breadcrumb & Title -->
+    <div class="mb-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-2" style="font-size: 0.85rem;">
+                <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Home</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Shop</li>
+                @if (!string.IsNullOrEmpty(Model.SelectedCategorySlug))
+                {
+                    <li class="breadcrumb-item active" aria-current="page">@Model.Categories.FirstOrDefault(c => c.Slug == Model.SelectedCategorySlug)?.Name</li>
+                }
+            </ol>
+        </nav>
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div>
+                <h1 style="font-size: 2.2rem; font-weight: 800; margin-bottom: 0.2rem;">
+                    @if (!string.IsNullOrEmpty(Model.SearchQuery))
+                    {
+                        <span>Search Results for "@Model.SearchQuery"</span>
+                    }
+                    else if (!string.IsNullOrEmpty(Model.SelectedCategorySlug))
+                    {
+                        <span>@Model.Categories.FirstOrDefault(c => c.Slug == Model.SelectedCategorySlug)?.Name</span>
+                    }
+                    else
+                    {
+                        <span>All Products</span>
+                    }
+                </h1>
+                <p class="text-muted mb-0">Showing @Model.TotalCount items in catalog</p>
+            </div>
+
+            <!-- Sorting Dropdown -->
+            <form method="get" asp-action="Index" id="sortForm" class="d-flex align-items-center gap-2">
+                <input type="hidden" name="category" value="@Model.SelectedCategorySlug" />
+                <input type="hidden" name="search" value="@Model.SearchQuery" />
+                @if (Model.OnlyInStock)
+                {
+                    <input type="hidden" name="inStock" value="true" />
+                }
+                <label for="sortSelect" class="text-muted fw-bold small text-nowrap">Sort by:</label>
+                <select name="sort" id="sortSelect" class="form-select form-select-sm rounded-pill" style="min-width: 170px;" onchange="this.form.submit()">
+                    <option value="featured" selected="@(Model.SortBy == "featured")">Featured & Top Picks</option>
+                    <option value="price-asc" selected="@(Model.SortBy == "price-asc")">Price: Low to High</option>
+                    <option value="price-desc" selected="@(Model.SortBy == "price-desc")">Price: High to Low</option>
+                    <option value="rating" selected="@(Model.SortBy == "rating")">Highest Customer Rating</option>
+                    <option value="newest" selected="@(Model.SortBy == "newest")">Newest Arrivals</option>
+                </select>
+            </form>
+        </div>
+    </div>
+
+    <!-- Shop Content Grid with Sidebar -->
+    <div class="shop-layout" style="margin: 0; padding: 0;">
+        <!-- Filters Sidebar -->
+        <aside class="filter-sidebar">
+            <form method="get" asp-action="Index" id="filterForm">
+                <input type="hidden" name="sort" value="@Model.SortBy" />
+
+                <!-- Search Filter -->
+                <div class="filter-group">
+                    <div class="filter-title">Search</div>
+                    <div class="position-relative">
+                        <input type="text" name="search" class="form-control form-control-sm rounded-pill ps-3" 
+                               placeholder="Filter by keyword..." value="@Model.SearchQuery" />
+                    </div>
+                </div>
+
+                <!-- Category Filter -->
+                <div class="filter-group">
+                    <div class="filter-title">Categories</div>
+                    <ul class="category-filter-list">
+                        <li class="category-filter-item @(string.IsNullOrEmpty(Model.SelectedCategorySlug) && !Model.SelectedCategoryId.HasValue ? "active" : "")">
+                            <a asp-action="Index" asp-route-search="@Model.SearchQuery" asp-route-sort="@Model.SortBy">
+                                <span>All Categories</span>
+                                <span class="badge bg-light text-dark rounded-pill">All</span>
+                            </a>
+                        </li>
+                        @foreach (var cat in Model.Categories)
+                        {
+                            var isActive = Model.SelectedCategorySlug == cat.Slug || Model.SelectedCategoryId == cat.Id;
+                            <li class="category-filter-item @(isActive ? "active" : "")">
+                                <a asp-action="Index" asp-route-category="@cat.Slug" asp-route-search="@Model.SearchQuery" asp-route-sort="@Model.SortBy">
+                                    <span>@cat.Name</span>
+                                    <span>→</span>
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+
+                <!-- Availability Filter -->
+                <div class="filter-group">
+                    <div class="filter-title">Availability</div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="inStock" value="true" id="checkInStock" 
+                               @(Model.OnlyInStock ? "checked" : "") onchange="this.form.submit()">
+                        <label class="form-check-label small" for="checkInStock">
+                            In Stock Only
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Price Range Filter -->
+                <div class="filter-group">
+                    <div class="filter-title">Price Range ($)</div>
+                    <div class="d-flex gap-2 align-items-center mb-2">
+                        <input type="number" name="minPrice" class="form-control form-control-sm" placeholder="Min" value="@Model.MinPrice" min="0" step="10" />
+                        <span>-</span>
+                        <input type="number" name="maxPrice" class="form-control form-control-sm" placeholder="Max" value="@Model.MaxPrice" min="0" step="10" />
+                    </div>
+                    <button type="submit" class="btn btn-sm btn-nexus-primary w-100 rounded-pill">Apply Filter</button>
+                </div>
+
+                <!-- Reset button -->
+                @if (!string.IsNullOrEmpty(Model.SearchQuery) || !string.IsNullOrEmpty(Model.SelectedCategorySlug) || Model.SelectedCategoryId.HasValue || Model.OnlyInStock || Model.MinPrice.HasValue || Model.MaxPrice.HasValue)
+                {
+                    <div class="mt-3 text-center">
+                        <a asp-action="Index" class="text-danger small text-decoration-none">
+                            ✕ Clear All Filters
+                        </a>
+                    </div>
+                }
+            </form>
+        </aside>
+
+        <!-- Products Grid Area -->
+        <main>
+            @if (Model.Products.Count == 0)
+            {
+                <div class="text-center py-5 bg-white rounded-4 border p-4 shadow-sm">
+                    <div style="font-size: 3.5rem;">🔍</div>
+                    <h3 class="mt-3 fw-bold">No Products Found</h3>
+                    <p class="text-muted">No items matched your current filter or search criteria.</p>
+                    <a asp-action="Index" class="btn-nexus-primary mt-2">View All Products</a>
+                </div>
+            }
+            else
+            {
+                <div class="product-grid">
+                    @foreach (var product in Model.Products)
+                    {
+                        <div class="product-card" id="catalog-product-@product.Id">
+                            <div class="product-img-wrap">
+                                @if (!string.IsNullOrEmpty(product.Badge))
+                                {
+                                    <span class="product-badge @(product.Badge.Contains("Sale") || product.Badge.Contains("%") ? "sale" : "top-seller")">
+                                        @product.Badge
+                                    </span>
+                                }
+                                else if (!product.InStock)
+                                {
+                                    <span class="product-badge" style="background: #94a3b8;">Out of Stock</span>
+                                }
+
+                                <a asp-action="Details" asp-route-id="@product.Id" asp-route-slug="@product.Slug">
+                                    <img src="@product.ImageUrl" alt="@product.Name" loading="lazy" />
+                                </a>
+                            </div>
+
+                            <div class="product-body">
+                                <div class="product-category-chip">@product.Category?.Name</div>
+                                <a asp-action="Details" asp-route-id="@product.Id" asp-route-slug="@product.Slug">
+                                    <h3 class="product-name">@product.Name</h3>
+                                </a>
+                                <p class="product-desc-snippet">@product.ShortDescription</p>
+
+                                <div class="product-rating">
+                                    <span>★</span>
+                                    <span class="product-rating-score">@product.Rating.ToString("0.0")</span>
+                                    <span class="product-rating-count">(@product.ReviewCount)</span>
+                                </div>
+
+                                <div class="product-footer">
+                                    <div class="product-price-box">
+                                        <span class="product-price">$@product.Price.ToString("0.00")</span>
+                                        @if (product.CompareAtPrice.HasValue && product.CompareAtPrice > product.Price)
+                                        {
+                                            <span class="product-compare-price">$@product.CompareAtPrice.Value.ToString("0.00")</span>
+                                        }
+                                    </div>
+
+                                    @if (product.InStock)
+                                    {
+                                        <button type="button" 
+                                                class="btn-add-cart-quick" 
+                                                data-quick-add="@product.Id"
+                                                title="Add to cart"
+                                                aria-label="Add @product.Name to cart">
+                                            +
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary text-white py-2 px-2" style="font-size: 0.75rem;">Sold Out</span>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </main>
+    </div>
+</div>

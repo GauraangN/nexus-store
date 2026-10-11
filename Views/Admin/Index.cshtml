@@ -1,0 +1,191 @@
+@model NexusStore.Models.ViewModels.AdminDashboardViewModel
+@{
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+<div class="container-fluid px-3 px-md-4 py-4" style="max-width: 1320px; margin: 0 auto;">
+    <!-- Admin Header -->
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4 pb-3 border-bottom">
+        <div>
+            <div class="d-flex align-items-center gap-2">
+                <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-1 rounded-pill fw-bold">ADMIN CONSOLE</span>
+                <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-1 rounded-pill fw-bold">Active Demo</span>
+            </div>
+            <h1 class="fw-bold mt-2 mb-0" style="font-size: 2.2rem;">Store Performance & Operations</h1>
+        </div>
+
+        <div class="d-flex align-items-center gap-2">
+            <a asp-action="Products" class="btn btn-outline-primary rounded-pill px-3 fw-bold">
+                📦 Manage Products
+            </a>
+            <a asp-action="Orders" class="btn btn-primary rounded-pill px-3 fw-bold shadow-sm">
+                📋 All Orders
+            </a>
+            <form method="post" asp-action="ResetDemoData" onsubmit="return confirm('Reset all products and orders to initial demo state?');">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-danger rounded-pill px-3" title="Restore sample demo data">
+                    🔄 Reset Demo Seed
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- KPI Metric Cards -->
+    <div class="row g-3 mb-4">
+        <!-- Total Revenue -->
+        <div class="col-sm-6 col-xl-3">
+            <div class="kpi-card">
+                <div>
+                    <div class="text-muted small fw-bold text-uppercase">Total Gross Revenue</div>
+                    <div class="kpi-value text-primary mt-1">$@Model.TotalRevenue.ToString("0.00")</div>
+                    <div class="small text-success mt-1">↑ Dynamic calculation</div>
+                </div>
+                <div class="fs-1 text-primary-subtle">💳</div>
+            </div>
+        </div>
+
+        <!-- Total Orders -->
+        <div class="col-sm-6 col-xl-3">
+            <div class="kpi-card">
+                <div>
+                    <div class="text-muted small fw-bold text-uppercase">Total Orders Processed</div>
+                    <div class="kpi-value mt-1">@Model.TotalOrders</div>
+                    <div class="small text-muted mt-1">Avg Order: $@Model.AverageOrderValue.ToString("0.00")</div>
+                </div>
+                <div class="fs-1 text-success-subtle">📦</div>
+            </div>
+        </div>
+
+        <!-- Total Products -->
+        <div class="col-sm-6 col-xl-3">
+            <div class="kpi-card">
+                <div>
+                    <div class="text-muted small fw-bold text-uppercase">Active Catalog SKUs</div>
+                    <div class="kpi-value mt-1">@Model.TotalProducts</div>
+                    <div class="small text-muted mt-1">Across 3 categories</div>
+                </div>
+                <div class="fs-1 text-info-subtle">🏷️</div>
+            </div>
+        </div>
+
+        <!-- Low Stock Alerts -->
+        <div class="col-sm-6 col-xl-3">
+            <div class="kpi-card">
+                <div>
+                    <div class="text-muted small fw-bold text-uppercase">Low Stock Warnings</div>
+                    <div class="kpi-value @(Model.LowStockCount > 0 ? "text-danger" : "text-success") mt-1">
+                        @Model.LowStockCount
+                    </div>
+                    <div class="small text-muted mt-1">Threshold: &le; 5 units</div>
+                </div>
+                <div class="fs-1 text-warning-subtle">⚠️</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="row g-4">
+        <!-- Recent Orders Table -->
+        <div class="col-lg-8">
+            <div class="bg-white border rounded-4 p-4 shadow-sm h-100">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold mb-0">Recent Customer Orders</h5>
+                    <a asp-action="Orders" class="btn btn-sm btn-link text-decoration-none">View All Orders →</a>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table align-middle">
+                        <thead class="text-muted small text-uppercase">
+                            <tr>
+                                <th>Order #</th>
+                                <th>Customer</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                                <th class="text-end">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var order in Model.RecentOrders)
+                            {
+                                <tr>
+                                    <td class="font-monospace fw-bold small">
+                                        <a asp-controller="Orders" asp-action="Confirmation" asp-route-orderNumber="@order.OrderNumber" class="text-primary">
+                                            @order.OrderNumber
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <div class="fw-bold small">@order.CustomerName</div>
+                                        <div class="text-muted" style="font-size: 0.75rem;">@order.CustomerEmail</div>
+                                    </td>
+                                    <td>
+                                        <span class="admin-badge status-@order.Status.ToString().ToLower()">
+                                            @order.Status
+                                        </span>
+                                    </td>
+                                    <td class="small text-muted">@order.CreatedAt.ToString("MMM dd, HH:mm")</td>
+                                    <td class="text-end fw-bold font-monospace">$@order.TotalAmount.ToString("0.00")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Side: Low Stock & Top Products -->
+        <div class="col-lg-4">
+            <!-- Low stock alert list -->
+            <div class="bg-white border rounded-4 p-4 shadow-sm mb-4">
+                <h5 class="fw-bold mb-3 d-flex align-items-center justify-content-between">
+                    <span>Low Stock Inventory</span>
+                    <span class="badge bg-danger">@Model.LowStockProducts.Count</span>
+                </h5>
+
+                @if (Model.LowStockProducts.Count == 0)
+                {
+                    <p class="text-muted small mb-0">All items have healthy inventory levels.</p>
+                }
+                else
+                {
+                    <div class="d-flex flex-column gap-3">
+                        @foreach (var prod in Model.LowStockProducts)
+                        {
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div class="d-flex align-items-center gap-2">
+                                    <img src="@prod.ImageUrl" alt="@prod.Name" class="rounded-2 border" style="width: 40px; height: 40px; object-fit: cover;" />
+                                    <div>
+                                        <div class="small fw-bold text-truncate" style="max-width: 150px;">@prod.Name</div>
+                                        <div class="text-muted" style="font-size: 0.72rem;">SKU: @prod.Sku</div>
+                                    </div>
+                                </div>
+                                <span class="badge bg-danger-subtle text-danger fw-bold">
+                                    Only @prod.StockQuantity left
+                                </span>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+
+            <!-- Top Selling / Most Reviewed -->
+            <div class="bg-white border rounded-4 p-4 shadow-sm">
+                <h5 class="fw-bold mb-3">Top Rated Products</h5>
+                <div class="d-flex flex-column gap-3">
+                    @foreach (var top in Model.TopProducts)
+                    {
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center gap-2">
+                                <img src="@top.ImageUrl" alt="@top.Name" class="rounded-2 border" style="width: 40px; height: 40px; object-fit: cover;" />
+                                <div>
+                                    <div class="small fw-bold text-truncate" style="max-width: 160px;">@top.Name</div>
+                                    <div class="text-warning small" style="font-size: 0.75rem;">★ @top.Rating.ToString("0.0") (@top.ReviewCount reviews)</div>
+                                </div>
+                            </div>
+                            <span class="small fw-bold font-monospace">$@top.Price.ToString("0.00")</span>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

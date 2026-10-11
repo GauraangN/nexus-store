@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - NexusStore | Premium Multi-Category Retail</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/nexus.css" asp-append-version="true" />
+</head>
+<body>
+    <!-- Top Announcement Bar -->
+    <div class="announcement-bar">
+        <div class="container d-flex justify-content-between align-items-center">
+            <span>✨ <strong>FREELANCE DEMO:</strong> Use promo code <strong style="background: linear-gradient(135deg, #f59e0b, #ea580c); color: #ffffff; padding: 2px 8px; border-radius: 6px; box-shadow: 0 2px 6px rgba(234, 88, 12, 0.3); font-weight: 800;">DEMO20</strong> for 20% off! Free worldwide express shipping on orders $100+</span>
+            <div class="d-none d-md-flex gap-3">
+                <a asp-controller="Orders" asp-action="Track">Order Tracking</a>
+                <a asp-controller="Admin" asp-action="Index" style="color: #c2410c; font-weight: 700;">⚡ Admin Portal</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Navigation Bar -->
+    <header class="nexus-navbar">
+        <div class="navbar-container">
+            <!-- Brand Logo -->
+            <a class="brand-logo" asp-controller="Home" asp-action="Index" id="navBrandLogo">
+                <div class="logo-icon">✦</div>
+                <span>NEXUS<span style="color: var(--primary);">STORE</span></span>
+            </a>
+
+            <!-- Nav Links -->
+            <ul class="nav-links d-none d-lg-flex">
+                <li><a class="nav-link-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "active" : "")" asp-controller="Home" asp-action="Index">Home</a></li>
+                <li><a class="nav-link-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Shop" && string.IsNullOrEmpty(Context.Request.Query["category"]) ? "active" : "")" asp-controller="Shop" asp-action="Index">Shop All</a></li>
+                <li><a class="nav-link-item @(Context.Request.Query["category"] == "electronics" ? "active" : "")" asp-controller="Shop" asp-action="Index" asp-route-category="electronics">Electronics</a></li>
+                <li><a class="nav-link-item @(Context.Request.Query["category"] == "home-living" ? "active" : "")" asp-controller="Shop" asp-action="Index" asp-route-category="home-living">Home & Living</a></li>
+                <li><a class="nav-link-item @(Context.Request.Query["category"] == "lifestyle-gear" ? "active" : "")" asp-controller="Shop" asp-action="Index" asp-route-category="lifestyle-gear">Lifestyle Gear</a></li>
+            </ul>
+
+            <!-- Search Bar -->
+            <div class="search-bar-nav d-none d-md-block">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="navSearchInput" placeholder="Search products, brands..." value="@Context.Request.Query["search"]" />
+            </div>
+
+            <!-- Actions (Cart & Admin) -->
+            <div class="nav-actions">
+                <button type="button" class="cart-button-trigger" id="cartTriggerBtn" aria-label="Open Cart">
+                    <span>🛒</span>
+                    <span>Cart</span>
+                    <span class="cart-count-badge" id="navCartBadge">0</span>
+                </button>
+
+                <a asp-controller="Admin" asp-action="Index" class="admin-pill-link" id="navAdminLink">
+                    <span>⚙️</span>
+                    <span class="d-none d-sm-inline">Admin Demo</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Global Toast Container -->
+    <div id="toastContainer" class="toast-nexus-container"></div>
+
+    <!-- Slide-over Cart Drawer Backdrop & Modal -->
+    <div id="cartDrawerBackdrop" class="cart-drawer-backdrop"></div>
+    <div id="cartDrawer" class="cart-drawer">
+        <div class="cart-drawer-header">
+            <div class="cart-drawer-title">
+                <span>🛒</span>
+                <span>Your Cart (<span class="cart-count-badge">0</span>)</span>
+            </div>
+            <button type="button" class="btn-close-drawer" id="cartDrawerCloseBtn">✕</button>
+        </div>
+
+        <div class="cart-drawer-body" id="cartDrawerItemsContainer">
+            <!-- Dynamic items rendered via nexus.js -->
+        </div>
+
+        <div class="cart-drawer-footer">
+            <div class="cart-summary-line">
+                <span>Subtotal</span>
+                <span id="drawerSubtotal" class="fw-bold text-dark">$0.00</span>
+            </div>
+            <div class="cart-summary-line total">
+                <span>Estimated Total</span>
+                <span id="drawerGrandTotal" style="color: var(--primary);">$0.00</span>
+            </div>
+            <div class="d-grid gap-2 mt-3">
+                <a asp-controller="Checkout" asp-action="Index" id="drawerCheckoutBtn" class="btn-nexus-primary text-center">
+                    Proceed to Checkout →
+                </a>
+                <a asp-controller="Cart" asp-action="Index" class="btn-nexus-outline text-center">
+                    View Full Cart
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Body Content -->
+    <main role="main">
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="container mt-3">
+                <div class="alert alert-success alert-dismissible fade show d-flex align-items-center shadow-sm border-0" role="alert" style="background: #ecfdf5; color: #065f46;">
+                    <span class="me-2 fw-bold">✓</span>
+                    <div>@TempData["SuccessMessage"]</div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            </div>
+        }
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="container mt-3">
+                <div class="alert alert-danger alert-dismissible fade show d-flex align-items-center shadow-sm border-0" role="alert" style="background: #fef2f2; color: #991b1b;">
+                    <span class="me-2 fw-bold">⚠️</span>
+                    <div>@TempData["ErrorMessage"]</div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            </div>
+        }
+
+        @RenderBody()
+    </main>
+
+    <!-- Warm, Light & Radiant Solar Footer -->
+    <footer class="nexus-footer">
+        <div class="footer-container">
+            <div>
+                <div class="brand-logo mb-3">
+                    <div class="logo-icon">✦</div>
+                    <span>NEXUS<span style="color: var(--primary);">STORE</span></span>
+                </div>
+                <p style="font-size: 0.92rem; max-width: 340px; margin-bottom: 1.5rem; color: #78716c;">
+                    A modern multi-category e-commerce demonstration built on ASP.NET 10 Core, showcasing clean architecture, responsive Razor Views, and seamless user experience.
+                </p>
+                <div class="d-flex gap-2">
+                    <span class="badge bg-warning-subtle text-dark border border-warning-subtle rounded-pill px-3 py-1 fw-bold">ASP.NET 10 Core</span>
+                    <span class="badge bg-warning-subtle text-dark border border-warning-subtle rounded-pill px-3 py-1 fw-bold">EF Core SQLite</span>
+                    <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-1 fw-bold">Responsive MVC</span>
+                </div>
+            </div>
+
+            <div>
+                <div class="footer-title">Categories</div>
+                <ul class="footer-links">
+                    <li><a asp-controller="Shop" asp-action="Index" asp-route-category="electronics">Electronics & Tech</a></li>
+                    <li><a asp-controller="Shop" asp-action="Index" asp-route-category="home-living">Modern Living</a></li>
+                    <li><a asp-controller="Shop" asp-action="Index" asp-route-category="lifestyle-gear">Everyday Gear</a></li>
+                    <li><a asp-controller="Shop" asp-action="Index">All Products</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <div class="footer-title">Quick Links</div>
+                <ul class="footer-links">
+                    <li><a asp-controller="Orders" asp-action="Track">Track Your Order</a></li>
+                    <li><a asp-controller="Cart" asp-action="Index">Shopping Bag</a></li>
+                    <li><a asp-controller="Admin" asp-action="Index">Admin Dashboard</a></li>
+                    <li><a asp-controller="Home" asp-action="Privacy">Store Policies</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <div class="footer-title">Client Demo Highlights</div>
+                <p style="font-size: 0.88rem; margin-bottom: 1rem; color: #78716c;">
+                    Designed to demonstrate high-converting layout, lightning-fast ASP.NET 10 performance, interactive slide-out cart, simulated checkout, and complete admin management.
+                </p>
+                <div class="d-flex align-items-center gap-2">
+                    <a asp-controller="Admin" asp-action="Index" class="btn btn-sm btn-nexus-outline">
+                        ⚡ Open Admin Demo
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <div>&copy; 2026 NexusStore Demo • Designed for Freelance Showcase • ASP.NET 10 Core</div>
+            <div class="d-flex gap-3">
+                <a asp-controller="Home" asp-action="Privacy">Privacy Policy</a>
+                <a href="#top">Back to top ↑</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/nexus.js" asp-append-version="true"></script>
+    <script>
+        // Initialize cart counts on initial page load
+        document.addEventListener('DOMContentLoaded', () => {
+            fetch('/Cart/GetCartData')
+                .then(r => r.json())
+                .then(d => {
+                    const badges = document.querySelectorAll('.cart-count-badge');
+                    badges.forEach(b => {
+                        b.textContent = d.totalItems;
+                        b.style.display = d.totalItems > 0 ? 'inline-block' : 'none';
+                    });
+                })
+                .catch(() => {});
+        });
+    </script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
