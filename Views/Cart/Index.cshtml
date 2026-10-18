@@ -1,31 +1,63 @@
 @model NexusStore.Models.Cart
 @{
-    ViewData["Title"] = "Shopping Cart";
+    ViewData["Title"] = "Shopping Bag";
+    decimal threshold = 100.0m;
+    decimal progress = Math.Min(100, Math.Round((Model.Subtotal / threshold) * 100));
+    decimal remaining = Math.Max(0, threshold - Model.Subtotal);
 }
 
-<div class="container-fluid px-3 px-md-4 py-4 max-w-1320" style="max-width: 1200px; margin: 0 auto;">
-    <h1 style="font-size: 2.2rem; font-weight: 800; margin-bottom: 1.5rem;">Your Shopping Cart</h1>
+<div class="container-fluid px-3 px-md-4 py-4 max-w-1400" style="max-width: 1200px; margin: 0 auto;">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 style="font-family: var(--font-heading); font-size: 2.3rem; font-weight: 900; text-transform: uppercase; letter-spacing: -0.02em; margin-bottom: 0.2rem;">
+                Shopping Bag
+            </h1>
+            <p class="text-muted mb-0">Review your selected pieces and proceed to express checkout.</p>
+        </div>
+        <a asp-controller="Shop" asp-action="Index" class="btn-nexus-outline">
+            ← Continue Shopping
+        </a>
+    </div>
 
     @if (Model.Items.Count == 0)
     {
-        <div class="text-center py-5 bg-white rounded-4 border p-5 shadow-sm">
-            <div style="font-size: 4rem;">🛍️</div>
-            <h2 class="mt-3 fw-bold">Your cart is currently empty</h2>
+        <div class="text-center py-5 bg-white rounded-3 border p-5 shadow-sm">
+            <div style="font-size: 3.5rem;">🛍️</div>
+            <h2 class="mt-3 fw-bold" style="font-family: var(--font-heading); text-transform: uppercase;">Your bag is currently empty</h2>
             <p class="text-muted mb-4">You haven't added any products to your shopping bag yet.</p>
-            <a asp-controller="Shop" asp-action="Index" class="btn-nexus-primary">Start Shopping Now →</a>
+            <a asp-controller="Shop" asp-action="Index" class="btn-nexus-primary">Explore All Collections →</a>
         </div>
     }
     else
     {
+        <!-- Free Shipping Meter Banner -->
+        <div class="border rounded-3 p-3 bg-white shadow-sm mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-2" style="font-size: 0.88rem; font-weight: 700;">
+                @if (Model.Subtotal >= threshold)
+                {
+                    <span class="text-success">🎉 <strong>CONGRATULATIONS! YOU UNLOCKED FREE EXPRESS SHIPPING!</strong></span>
+                    <span class="badge bg-success-subtle text-success">100% UNLOCKED</span>
+                }
+                else
+                {
+                    <span>Add <strong style="color: #0a0c10;">$@remaining.ToString("0.00")</strong> more to unlock <strong style="color: #10b981;">FREE EXPRESS SHIPPING</strong></span>
+                    <span class="text-muted">@progress%</span>
+                }
+            </div>
+            <div class="free-shipping-track" style="height: 8px;">
+                <div class="free-shipping-fill @(Model.Subtotal >= threshold ? "unlocked" : "")" style="width: @progress%;"></div>
+            </div>
+        </div>
+
         <div class="row g-4">
             <!-- Left: Cart Items List -->
             <div class="col-lg-8">
-                <div class="bg-white border rounded-4 p-4 shadow-sm mb-4">
+                <div class="bg-white border rounded-3 p-4 shadow-sm mb-4">
                     <div class="table-responsive">
                         <table class="table align-middle">
-                            <thead class="text-muted small text-uppercase">
+                            <thead class="text-muted small text-uppercase" style="font-family: var(--font-heading); letter-spacing: 0.05em; border-bottom: 2px solid var(--border-color);">
                                 <tr>
-                                    <th>Product</th>
+                                    <th>Item</th>
                                     <th>Price</th>
                                     <th>Quantity</th>
                                     <th>Total</th>
@@ -35,33 +67,33 @@
                             <tbody>
                                 @foreach (var item in Model.Items)
                                 {
-                                    <tr>
-                                        <td>
+                                    <tr style="border-bottom: 1px solid var(--border-subtle);">
+                                        <td style="padding: 1rem 0;">
                                             <div class="d-flex align-items-center gap-3">
                                                 <img src="@item.ImageUrl" alt="@item.ProductName" 
-                                                     class="rounded-3 border" style="width: 70px; height: 70px; object-fit: cover;" />
+                                                     class="rounded-2 border" style="width: 72px; height: 80px; object-fit: cover; background: #f8f9fa;" />
                                                 <div>
                                                     <a asp-controller="Shop" asp-action="Details" asp-route-id="@item.ProductId" 
-                                                       class="fw-bold text-dark text-decoration-none">
+                                                       class="fw-bold text-dark text-decoration-none" style="font-family: var(--font-heading); font-size: 0.96rem;">
                                                         @item.ProductName
                                                     </a>
-                                                    <div class="small text-muted">@item.CategoryName</div>
+                                                    <div class="small text-muted">@item.CategoryName • Size M</div>
                                                 </div>
                                             </div>
                                         </td>
-                                        <td class="fw-semibold">$@item.UnitPrice.ToString("0.00")</td>
+                                        <td class="fw-semibold" style="font-family: var(--font-heading);">$@item.UnitPrice.ToString("0.00")</td>
                                         <td>
-                                            <div class="d-flex align-items-center border rounded-pill bg-light p-1" style="width: fit-content;">
+                                            <div class="d-flex align-items-center border rounded-pill bg-light p-1" style="width: fit-content; border-color: var(--border-color) !important;">
                                                 <button type="button" class="btn btn-sm btn-link text-dark text-decoration-none px-2 py-0" 
                                                         onclick="updateItemQty(@item.ProductId, @item.Quantity - 1)">−</button>
-                                                <span class="fw-bold px-2" style="font-size: 0.9rem;">@item.Quantity</span>
+                                                <span class="fw-bold px-2" style="font-size: 0.88rem;">@item.Quantity</span>
                                                 <button type="button" class="btn btn-sm btn-link text-dark text-decoration-none px-2 py-0" 
                                                         onclick="updateItemQty(@item.ProductId, @item.Quantity + 1)">+</button>
                                             </div>
                                         </td>
-                                        <td class="fw-bold text-primary">$@item.TotalPrice.ToString("0.00")</td>
+                                        <td class="fw-bold text-dark" style="font-family: var(--font-heading); font-size: 1.05rem;">$@item.TotalPrice.ToString("0.00")</td>
                                         <td>
-                                            <button type="button" class="btn btn-sm text-danger" onclick="removeDrawerItem(@item.ProductId)" title="Remove item">
+                                            <button type="button" class="btn-cart-remove" onclick="removeDrawerItem(@item.ProductId)" title="Remove item">
                                                 ✕
                                             </button>
                                         </td>
@@ -72,36 +104,36 @@
                     </div>
 
                     <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
-                        <a asp-controller="Shop" asp-action="Index" class="btn-nexus-outline">
-                            ← Continue Shopping
+                        <span class="text-muted small">@Model.TotalItems item(s) in bag</span>
+                        <a asp-controller="Shop" asp-action="Index" class="text-dark small text-decoration-underline fw-bold">
+                            + Add more items
                         </a>
-                        <span class="text-muted small">@Model.TotalItems total item(s)</span>
                     </div>
                 </div>
 
                 <!-- Promo Coupon Code Card -->
-                <div class="bg-white border rounded-4 p-4 shadow-sm">
-                    <h5 class="fw-bold mb-3">Promotional Discount</h5>
+                <div class="bg-white border rounded-3 p-4 shadow-sm">
+                    <h5 class="fw-bold mb-3" style="font-family: var(--font-heading); text-transform: uppercase; font-size: 0.95rem;">Promotional Discount</h5>
                     @if (!string.IsNullOrEmpty(Model.CouponCode))
                     {
                         <div class="d-flex align-items-center justify-content-between bg-success-subtle border border-success-subtle rounded-3 p-3">
                             <div class="text-success fw-bold">
-                                ✓ Applied Coupon: @Model.CouponCode
+                                ✓ Applied Coupon Code: <strong>@Model.CouponCode</strong> (@Model.DiscountPercent% OFF)
                             </div>
                             <form method="post" asp-action="RemoveCoupon">
-                                <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill">Remove</button>
+                                <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3">Remove</button>
                             </form>
                         </div>
                     }
                     else
                     {
                         <form method="post" asp-action="ApplyCoupon" class="d-flex gap-2">
-                            <input type="text" name="couponCode" placeholder="Enter promo code (e.g. DEMO20)" 
-                                   class="form-control rounded-pill" style="max-width: 320px;" required />
+                            <input type="text" name="couponCode" placeholder="Enter coupon code (e.g. DEMO20)" 
+                                   class="form-control rounded-pill px-3" style="max-width: 320px;" required />
                             <button type="submit" class="btn btn-nexus-primary rounded-pill px-4">Apply</button>
                         </form>
-                        <div class="form-text mt-2">
-                            💡 Demo Tip: Use code <strong class="text-primary">DEMO20</strong> for 20% off or <strong class="text-primary">SAVE10</strong> for 10% off.
+                        <div class="mt-2 text-muted" style="font-size: 0.82rem;">
+                            💡 Demo Tip: Try code <span class="badge bg-dark text-white font-monospace">DEMO20</span> for 20% off or <span class="badge bg-dark text-white font-monospace">SAVE10</span> for 10% off.
                         </div>
                     }
                 </div>
@@ -109,42 +141,42 @@
 
             <!-- Right: Order Summary -->
             <div class="col-lg-4">
-                <div class="bg-white border rounded-4 p-4 shadow-sm sticky-top" style="top: 6rem;">
-                    <h4 class="fw-bold mb-4">Order Summary</h4>
+                <div class="bg-white border rounded-3 p-4 shadow-sm sticky-top" style="top: 6rem;">
+                    <h4 class="fw-bold mb-3" style="font-family: var(--font-heading); text-transform: uppercase; font-size: 1.15rem;">Order Summary</h4>
 
-                    <div class="d-flex justify-content-between mb-2">
-                        <span class="text-muted">Subtotal</span>
-                        <span class="fw-bold">$@Model.Subtotal.ToString("0.00")</span>
+                    <div class="d-flex justify-content-between mb-2 text-muted" style="font-size: 0.9rem;">
+                        <span>Subtotal</span>
+                        <span class="fw-bold text-dark">$@Model.Subtotal.ToString("0.00")</span>
                     </div>
 
                     @if (Model.DiscountAmount > 0)
                     {
-                        <div class="d-flex justify-content-between mb-2 text-success">
-                            <span>Promo Discount</span>
+                        <div class="d-flex justify-content-between mb-2 text-success" style="font-size: 0.9rem;">
+                            <span>Promo Discount (@Model.CouponCode)</span>
                             <span class="fw-bold">−$@Model.DiscountAmount.ToString("0.00")</span>
                         </div>
                     }
 
-                    <div class="d-flex justify-content-between mb-2">
-                        <span class="text-muted">Estimated Shipping</span>
-                        <span class="fw-bold">
+                    <div class="d-flex justify-content-between mb-2 text-muted" style="font-size: 0.9rem;">
+                        <span>Shipping</span>
+                        <span class="fw-bold text-dark">
                             @(Model.ShippingFee == 0 ? "FREE" : $"${Model.ShippingFee:0.00}")
                         </span>
                     </div>
 
-                    <div class="d-flex justify-content-between mb-3">
-                        <span class="text-muted">Estimated Tax (8%)</span>
-                        <span class="fw-bold">$@Model.EstimatedTax.ToString("0.00")</span>
+                    <div class="d-flex justify-content-between mb-3 text-muted" style="font-size: 0.9rem;">
+                        <span>Estimated Tax (8%)</span>
+                        <span class="fw-bold text-dark">$@Model.EstimatedTax.ToString("0.00")</span>
                     </div>
 
-                    <hr />
+                    <hr style="border-color: var(--border-color);" />
 
                     <div class="d-flex justify-content-between align-items-center mb-4">
-                        <span class="fs-5 fw-bold">Total</span>
-                        <span class="fs-3 fw-bold text-dark font-monospace">$@Model.GrandTotal.ToString("0.00")</span>
+                        <span class="fw-bold" style="font-family: var(--font-heading); text-transform: uppercase; font-size: 1.1rem;">Estimated Total</span>
+                        <span class="fs-3 fw-bold text-dark" style="font-family: var(--font-heading);">$@Model.GrandTotal.ToString("0.00")</span>
                     </div>
 
-                    <a asp-controller="Checkout" asp-action="Index" class="btn-nexus-primary w-100 py-3 text-center fw-bold fs-6">
+                    <a asp-controller="Checkout" asp-action="Index" class="btn-nexus-volt w-100 py-3 text-center fw-bold fs-6">
                         Proceed to Checkout →
                     </a>
 

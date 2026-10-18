@@ -1,120 +1,128 @@
 @model NexusStore.Models.ViewModels.HomeViewModel
 @{
-    ViewData["Title"] = "Modern Electronics, Home & Lifestyle Goods";
+    ViewData["Title"] = "Engineered Performance Tech, Home & Lifestyle Goods";
 }
 
-<!-- Hero Section -->
+<!-- Hero Section - High-Impact Athletic D2C Editorial Style -->
 <div class="container-fluid px-3 px-md-4">
     <section class="hero-banner" id="heroBanner">
         <div class="hero-content">
             <div class="hero-tag">
-                <span>✦</span>
-                <span>ASP.NET 10 Core Demo Store</span>
+                <span>⚡</span>
+                <span>NEW SEASON DROP // PERFORMANCE LIVING</span>
             </div>
             <h1 class="hero-title">
-                Curated Tech, Home & Everyday Gear.
+                Precision Crafted.<br/>Built for Movement.
             </h1>
             <p class="hero-subtitle">
-                Experience high-performance design, minimalist aesthetics, and engineered precision. Built to demonstrate a production-ready e-commerce store for modern freelance projects.
+                High-performance audio gear, curated modern home essentials, and weatherproof everyday carry engineered for modern daily life and athletic precision.
             </p>
             <div class="hero-cta-group">
-                <a asp-controller="Shop" asp-action="Index" class="btn-nexus-primary" id="btnHeroShop">
-                    Explore All Products →
+                <a asp-controller="Shop" asp-action="Index" class="btn-nexus-volt" id="btnHeroShop">
+                    Shop Latest Drops →
                 </a>
-                <a asp-controller="Shop" asp-action="Index" asp-route-category="electronics" class="btn-nexus-secondary">
-                    Browse Tech & Audio
+                <a asp-controller="Shop" asp-action="Index" asp-route-category="lifestyle-gear" class="btn-nexus-secondary" style="background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.25); color: #ffffff;">
+                    Browse Everyday Gear
                 </a>
+            </div>
+
+            <!-- Trust Bar Inside Hero -->
+            <div class="hero-trust-bar">
+                <div class="hero-trust-item">
+                    <span style="color: #f59e0b;">★★★★★</span>
+                    <span><strong>4.9 / 5.0</strong> Customer Rating</span>
+                </div>
+                <div class="hero-trust-item">
+                    <span>🚀</span>
+                    <span><strong>Free Express Shipping</strong> over $100</span>
+                </div>
+                <div class="hero-trust-item">
+                    <span>🛡️</span>
+                    <span><strong>30-Day</strong> Risk-Free Trial</span>
+                </div>
             </div>
         </div>
     </section>
 </div>
 
-<!-- Trust & Value Badges -->
-<div class="benefits-row">
-    <div class="benefit-card">
-        <div class="benefit-icon" style="background: #fef3c7; color: #d97706;">🚀</div>
-        <div>
-            <div class="benefit-title">Complimentary Express Shipping</div>
-            <div class="benefit-desc">Free worldwide tracking on all orders over $100.</div>
-        </div>
-    </div>
-    <div class="benefit-card">
-        <div class="benefit-icon" style="background: #ffedd5; color: #ea580c;">🛡️</div>
-        <div>
-            <div class="benefit-title">30-Day Risk-Free Guarantee</div>
-            <div class="benefit-desc">Hassle-free exchanges and instant refunds.</div>
-        </div>
-    </div>
-    <div class="benefit-card">
-        <div class="benefit-icon" style="background: #fef9c3; color: #ca8a04;">🔒</div>
-        <div>
-            <div class="benefit-title">Encrypted Checkout Flow</div>
-            <div class="benefit-desc">Simulated checkout with instant validation.</div>
-        </div>
-    </div>
-    <div class="benefit-card">
-        <div class="benefit-icon" style="background: #ffedd5; color: #f97316;">⚡</div>
-        <div>
-            <div class="benefit-title">ASP.NET 10 Performance</div>
-            <div class="benefit-desc">Ultra-fast response times, EF Core SQLite backend.</div>
-        </div>
-    </div>
+<!-- Quick Category Navigation Pill Bar (Fuaark / Activewear D2C Style) -->
+<div class="quick-categories-bar">
+    <a asp-controller="Shop" asp-action="Index" class="category-quick-pill active">
+        <span>✦ All Collections</span>
+        <span class="pill-count">@Model.FeaturedProducts.Count+</span>
+    </a>
+    <a asp-controller="Shop" asp-action="Index" asp-route-category="electronics" class="category-quick-pill">
+        <span>🎧 Tech & Audio</span>
+    </a>
+    <a asp-controller="Shop" asp-action="Index" asp-route-category="lifestyle-gear" class="category-quick-pill">
+        <span>🎒 Lifestyle & EDC</span>
+    </a>
+    <a asp-controller="Shop" asp-action="Index" asp-route-category="home-living" class="category-quick-pill">
+        <span>🛋️ Modern Living</span>
+    </a>
+    <a asp-controller="Shop" asp-action="Index" asp-route-sort="rating" class="category-quick-pill">
+        <span>🔥 Best Sellers</span>
+    </a>
+    <a asp-controller="Shop" asp-action="Index" asp-route-maxPrice="50" class="category-quick-pill">
+        <span>🏷️ Under $50</span>
+    </a>
 </div>
 
-<!-- Categories Showcase -->
-<section class="categories-showcase">
-    <div class="section-header">
-        <div>
-            <h2 class="section-title">Shop by Category</h2>
-            <div class="section-subtitle">Discover thoughtfully designed goods made for every facet of your day.</div>
-        </div>
-        <a asp-controller="Shop" asp-action="Index" class="btn-nexus-outline d-none d-sm-inline-flex">
-            All Collections →
-        </a>
-    </div>
-
-    <div class="category-grid">
-        @foreach (var cat in Model.Categories)
-        {
-            <div class="category-card" style="background-image: url('@cat.ImageUrl');">
-                <div class="category-card-content">
-                    <h3 class="category-card-title">@cat.Name</h3>
-                    <p class="category-card-desc">@cat.Description</p>
-                    <a asp-controller="Shop" asp-action="Index" asp-route-category="@cat.Slug" class="category-card-link">
-                        Explore Category <span>→</span>
-                    </a>
-                </div>
-            </div>
-        }
-    </div>
-</section>
-
-<!-- Featured Products Section -->
+<!-- Featured Products Section with Interactive Filter Tabs -->
 <section class="products-container">
     <div class="section-header">
         <div>
-            <h2 class="section-title">Featured Products</h2>
-            <div class="section-subtitle">Hand-picked gear that blends innovative utility with striking design.</div>
+            <h2 class="section-title">Trending Drops & Best Sellers</h2>
+            <div class="section-subtitle">Engineered to elevate your everyday kit with minimalist precision.</div>
         </div>
-        <a asp-controller="Shop" asp-action="Index" class="btn-nexus-outline">
-            View All (@Model.FeaturedProducts.Count +) →
+        <a asp-controller="Shop" asp-action="Index" class="btn-nexus-outline d-none d-sm-inline-flex">
+            View All Catalog (@Model.FeaturedProducts.Count +) →
         </a>
     </div>
 
-    <div class="product-grid">
+    <!-- Category Tabs Filter -->
+    <div class="showcase-tabs-nav">
+        <button type="button" class="showcase-tab-btn active" onclick="filterShowcase('all', this)">All Drops</button>
+        <button type="button" class="showcase-tab-btn" onclick="filterShowcase('electronics', this)">Tech & Audio</button>
+        <button type="button" class="showcase-tab-btn" onclick="filterShowcase('lifestyle-gear', this)">Lifestyle & Gear</button>
+        <button type="button" class="showcase-tab-btn" onclick="filterShowcase('home-living', this)">Modern Living</button>
+    </div>
+
+    <!-- Product Grid (Tall Portrait Aspect Ratio Cards) -->
+    <div class="product-grid" id="homeProductGrid">
         @foreach (var product in Model.FeaturedProducts)
         {
-            <div class="product-card" id="product-card-@product.Id">
+            var badgeClass = "top-seller";
+            if (!string.IsNullOrEmpty(product.Badge))
+            {
+                if (product.Badge.Contains("Sale") || product.Badge.Contains("%") || product.Badge.Contains("Off"))
+                {
+                    badgeClass = "sale";
+                }
+                else if (product.Badge.Contains("New") || product.Badge.Contains("Drop"))
+                {
+                    badgeClass = "new";
+                }
+            }
+
+            <div class="product-card product-showcase-item" id="product-card-@product.Id" data-category="@product.Category?.Slug">
                 <div class="product-img-wrap">
                     @if (!string.IsNullOrEmpty(product.Badge))
                     {
-                        <span class="product-badge @(product.Badge.Contains("Sale") || product.Badge.Contains("%") ? "sale" : "top-seller")">
+                        <span class="product-badge @badgeClass">
                             @product.Badge
                         </span>
                     }
                     <a asp-controller="Shop" asp-action="Details" asp-route-id="@product.Id" asp-route-slug="@product.Slug">
                         <img src="@product.ImageUrl" alt="@product.Name" loading="lazy" />
                     </a>
+
+                    <!-- Hover Quick Add Overlay -->
+                    <div class="product-quick-add-overlay">
+                        <button type="button" class="btn-card-quick-add" data-quick-add="@product.Id">
+                            + Quick Add to Bag
+                        </button>
+                    </div>
                 </div>
 
                 <div class="product-body">
@@ -139,11 +147,7 @@
                             }
                         </div>
 
-                        <button type="button" 
-                                class="btn-add-cart-quick" 
-                                data-quick-add="@product.Id"
-                                title="Add to cart"
-                                aria-label="Add @product.Name to cart">
+                        <button type="button" class="btn-add-cart-quick" data-quick-add="@product.Id" title="Add to Bag">
                             +
                         </button>
                     </div>
@@ -153,86 +157,114 @@
     </div>
 </section>
 
-<!-- Warm Solar Promo Banner (Matching Hero Background) -->
-<div class="container-fluid px-3 px-md-4 my-5">
-    <div class="promo-banner text-center" id="promoBanner">
-        <div style="position: relative; z-index: 2; max-width: 720px; margin: 0 auto;">
-            <div class="hero-tag mb-3">
-                <span>✦</span>
-                <span>PROMO CODE AVAILABLE</span>
-            </div>
-            <h2 style="font-size: 2.8rem; font-weight: 800; margin-bottom: 1rem; background: linear-gradient(135deg, #431407 0%, #9a3412 50%, #ea580c 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
-                Experience the Future of Everyday Goods
-            </h2>
-            <p class="hero-subtitle mb-4 mx-auto" style="max-width: 620px;">
-                Try code <code style="background: #ffffff; padding: 5px 12px; border-radius: 8px; color: #c2410c; font-weight: 800; border: 1.5px solid #fed7aa; box-shadow: 0 2px 6px rgba(249, 115, 22, 0.15);">DEMO20</code> at checkout to unlock an instant 20% discount across all products!
-            </p>
-            <div class="hero-cta-group justify-content-center">
-                <a asp-controller="Shop" asp-action="Index" class="btn-nexus-primary">
-                    Shop Now with Discount →
-                </a>
-                <a asp-controller="Admin" asp-action="Index" class="btn-nexus-secondary">
-                    View Admin Metrics
-                </a>
-            </div>
+<!-- Performance Innovation & Value Pillars -->
+<div class="benefits-row" id="benefits">
+    <div class="benefit-card">
+        <div class="benefit-icon">⚡</div>
+        <div>
+            <div class="benefit-title">Precision Engineering</div>
+            <div class="benefit-desc">Aerospace-grade materials and ergonomic design tested for durability.</div>
+        </div>
+    </div>
+    <div class="benefit-card">
+        <div class="benefit-icon">🚀</div>
+        <div>
+            <div class="benefit-title">Priority 24H Dispatch</div>
+            <div class="benefit-desc">Complimentary express shipping on all orders over $100 with global tracking.</div>
+        </div>
+    </div>
+    <div class="benefit-card">
+        <div class="benefit-icon">🛡️</div>
+        <div>
+            <div class="benefit-title">30-Day Risk-Free Trial</div>
+            <div class="benefit-desc">Hassle-free exchanges and instant refunds with prepaid return labels.</div>
+        </div>
+    </div>
+    <div class="benefit-card">
+        <div class="benefit-icon">🔒</div>
+        <div>
+            <div class="benefit-title">Encrypted Checkout Flow</div>
+            <div class="benefit-desc">Enterprise 256-bit SSL encryption with real-time inventory ledger.</div>
         </div>
     </div>
 </div>
 
-<!-- Trending Deals Section -->
-@if (Model.TrendingDeals.Any())
-{
-    <section class="products-container mt-5">
-        <div class="section-header">
-            <div>
-                <h2 class="section-title">Special Offers & Deals</h2>
-                <div class="section-subtitle">Premium goods at special limited-time demonstration pricing.</div>
+<!-- Curated Lookbook & Editorial Spotlight Grid -->
+<section class="editorial-grid">
+    <div class="editorial-card" style="background-image: url('https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=1000&q=80');">
+        <div class="editorial-card-content">
+            <span class="editorial-badge">ACOUSTIC SERIES</span>
+            <h3 class="editorial-title">Studio Sound.<br/>Zero Distractions.</h3>
+            <p class="editorial-desc">Custom 40mm beryllium drivers and hybrid active noise cancellation designed for focused deep work.</p>
+            <a asp-controller="Shop" asp-action="Index" asp-route-category="electronics" class="btn-nexus-volt" style="padding: 0.65rem 1.4rem; font-size: 0.82rem;">
+                Explore Tech Series →
+            </a>
+        </div>
+    </div>
+
+    <div class="editorial-card" style="background-image: url('https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=1000&q=80');">
+        <div class="editorial-card-content">
+            <span class="editorial-badge" style="background: #ffffff; color: #0a0c10;">EDC ESSENTIALS</span>
+            <h3 class="editorial-title">Weatherproof.<br/>Uncompromising.</h3>
+            <p class="editorial-desc">Cordura ballistic nylon and Grade 5 titanium hardware built for relentless urban commutes and travel.</p>
+            <a asp-controller="Shop" asp-action="Index" asp-route-category="lifestyle-gear" class="btn-nexus-primary" style="background: #ffffff; color: #0a0c10; padding: 0.65rem 1.4rem; font-size: 0.82rem;">
+                Browse Everyday Carry →
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Community Social Proof & Customer Reviews -->
+<section class="products-container" style="margin-top: 4rem;">
+    <div class="section-header text-center d-block mb-4">
+        <h2 class="section-title">Worn & Trusted by 50,000+ Athletes & Creators</h2>
+        <div class="section-subtitle">Real experiences from customers who demand precision and performance every day.</div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="bg-white border rounded-3 p-4 h-100 shadow-sm d-flex flex-direction-column justify-content-between">
+                <div>
+                    <div class="text-warning mb-2">★★★★★</div>
+                    <p class="fst-italic text-secondary mb-3" style="font-size: 0.94rem; line-height: 1.6;">
+                        "The Aura Pro ANC headphones completely transformed my workflow. The build quality feels like a $500 studio unit. Fast shipping and the packaging was pure luxury."
+                    </p>
+                </div>
+                <div class="d-flex align-items-center gap-2 pt-3 border-top">
+                    <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill">✓ Verified Buyer</span>
+                    <span class="fw-bold small text-dark">Marcus Z. — San Francisco</span>
+                </div>
             </div>
         </div>
 
-        <div class="product-grid">
-            @foreach (var product in Model.TrendingDeals)
-            {
-                <div class="product-card" id="deal-card-@product.Id">
-                    <div class="product-img-wrap">
-                        <span class="product-badge sale">Save @product.DiscountPercent%</span>
-                        <a asp-controller="Shop" asp-action="Details" asp-route-id="@product.Id" asp-route-slug="@product.Slug">
-                            <img src="@product.ImageUrl" alt="@product.Name" loading="lazy" />
-                        </a>
-                    </div>
-
-                    <div class="product-body">
-                        <div class="product-category-chip">@product.Category?.Name</div>
-                        <a asp-controller="Shop" asp-action="Details" asp-route-id="@product.Id" asp-route-slug="@product.Slug">
-                            <h3 class="product-name">@product.Name</h3>
-                        </a>
-                        <p class="product-desc-snippet">@product.ShortDescription</p>
-
-                        <div class="product-rating">
-                            <span>★</span>
-                            <span class="product-rating-score">@product.Rating.ToString("0.0")</span>
-                            <span class="product-rating-count">(@product.ReviewCount reviews)</span>
-                        </div>
-
-                        <div class="product-footer">
-                            <div class="product-price-box">
-                                <span class="product-price">$@product.Price.ToString("0.00")</span>
-                                @if (product.CompareAtPrice.HasValue)
-                                {
-                                    <span class="product-compare-price">$@product.CompareAtPrice.Value.ToString("0.00")</span>
-                                }
-                            </div>
-
-                            <button type="button" 
-                                    class="btn-add-cart-quick" 
-                                    data-quick-add="@product.Id"
-                                    title="Add to cart">
-                                +
-                            </button>
-                        </div>
-                    </div>
+        <div class="col-md-4">
+            <div class="bg-white border rounded-3 p-4 h-100 shadow-sm d-flex flex-direction-column justify-content-between">
+                <div>
+                    <div class="text-warning mb-2">★★★★★</div>
+                    <p class="fst-italic text-secondary mb-3" style="font-size: 0.94rem; line-height: 1.6;">
+                        "The Apex Commuter backpack is indestructible. Rain slides right off the YKK AquaGuard zippers, and the suspended laptop compartment gives total peace of mind."
+                    </p>
                 </div>
-            }
+                <div class="d-flex align-items-center gap-2 pt-3 border-top">
+                    <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill">✓ Verified Buyer</span>
+                    <span class="fw-bold small text-dark">Sophia B. — New York</span>
+                </div>
+            </div>
         </div>
-    </section>
-}
+
+        <div class="col-md-4">
+            <div class="bg-white border rounded-3 p-4 h-100 shadow-sm d-flex flex-direction-column justify-content-between">
+                <div>
+                    <div class="text-warning mb-2">★★★★★</div>
+                    <p class="fst-italic text-secondary mb-3" style="font-size: 0.94rem; line-height: 1.6;">
+                        "Super fast dispatch! The Chronos Field Watch has that rugged military look paired with Japanese automatic reliability. Hands down the best purchase this year."
+                    </p>
+                </div>
+                <div class="d-flex align-items-center gap-2 pt-3 border-top">
+                    <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill">✓ Verified Buyer</span>
+                    <span class="fw-bold small text-dark">David L. — London</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

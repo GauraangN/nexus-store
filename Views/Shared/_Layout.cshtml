@@ -3,18 +3,28 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - NexusStore | Premium Multi-Category Retail</title>
+    <title>@ViewData["Title"] — NEXUS // High-Performance Retail</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,600;1,700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/nexus.css" asp-append-version="true" />
 </head>
 <body>
-    <!-- Top Announcement Bar -->
+    <!-- Top Announcement Bar / Athletic Ticker -->
     <div class="announcement-bar">
-        <div class="container d-flex justify-content-between align-items-center">
-            <span>✨ <strong>FREELANCE DEMO:</strong> Use promo code <strong style="background: linear-gradient(135deg, #f59e0b, #ea580c); color: #ffffff; padding: 2px 8px; border-radius: 6px; box-shadow: 0 2px 6px rgba(234, 88, 12, 0.3); font-weight: 800;">DEMO20</strong> for 20% off! Free worldwide express shipping on orders $100+</span>
-            <div class="d-none d-md-flex gap-3">
+        <div class="navbar-container d-flex justify-content-between align-items-center py-0">
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+                <span>⚡ <strong>FREE EXPRESS SHIPPING</strong> ON ORDERS OVER $100</span>
+                <span class="d-none d-md-inline text-muted">•</span>
+                <span class="d-none d-md-inline">USE CODE <span class="ticker-highlight">DEMO20</span> FOR 20% OFF</span>
+                <span class="d-none d-lg-inline text-muted">•</span>
+                <span class="d-none d-lg-inline text-white-50">30-DAY HASSLE-FREE RETURNS</span>
+            </div>
+            <div class="d-none d-sm-flex align-items-center gap-3">
                 <a asp-controller="Orders" asp-action="Track">Order Tracking</a>
-                <a asp-controller="Admin" asp-action="Index" style="color: #c2410c; font-weight: 700;">⚡ Admin Portal</a>
+                <span class="text-white-50">|</span>
+                <a asp-controller="Admin" asp-action="Index" style="color: var(--accent-volt); font-weight: 700;">⚡ Admin Console</a>
             </div>
         </div>
     </div>
@@ -24,40 +34,115 @@
         <div class="navbar-container">
             <!-- Brand Logo -->
             <a class="brand-logo" asp-controller="Home" asp-action="Index" id="navBrandLogo">
-                <div class="logo-icon">✦</div>
-                <span>NEXUS<span style="color: var(--primary);">STORE</span></span>
+                <div class="logo-icon-wrap">
+                    <svg class="brand-svg-mark" width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="36" height="36" rx="9" fill="#0A0C10"/>
+                        <rect x="0.5" y="0.5" width="35" height="35" rx="8.5" stroke="rgba(255, 255, 255, 0.14)" stroke-width="1"/>
+                        <!-- Dual-Blade Aerodynamic Apex Delta -->
+                        <path d="M16.8 8L7.5 26.5H13.2L16.8 19V8Z" fill="#FFFFFF"/>
+                        <path d="M19.2 8L19.2 19L22.8 26.5H28.5L19.2 8Z" fill="#D4FF00"/>
+                    </svg>
+                </div>
+                <div class="brand-text-lockup">
+                    <span class="brand-name-main">NEXUS</span>
+                    <span class="brand-name-sub">STORE</span>
+                </div>
             </a>
 
-            <!-- Nav Links -->
+            <!-- Nav Links (Clean, Athletic Uppercase) -->
             <ul class="nav-links d-none d-lg-flex">
                 <li><a class="nav-link-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "active" : "")" asp-controller="Home" asp-action="Index">Home</a></li>
                 <li><a class="nav-link-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Shop" && string.IsNullOrEmpty(Context.Request.Query["category"]) ? "active" : "")" asp-controller="Shop" asp-action="Index">Shop All</a></li>
-                <li><a class="nav-link-item @(Context.Request.Query["category"] == "electronics" ? "active" : "")" asp-controller="Shop" asp-action="Index" asp-route-category="electronics">Electronics</a></li>
-                <li><a class="nav-link-item @(Context.Request.Query["category"] == "home-living" ? "active" : "")" asp-controller="Shop" asp-action="Index" asp-route-category="home-living">Home & Living</a></li>
+                <li><a class="nav-link-item @(Context.Request.Query["category"] == "electronics" ? "active" : "")" asp-controller="Shop" asp-action="Index" asp-route-category="electronics">Tech & Audio</a></li>
+                <li><a class="nav-link-item @(Context.Request.Query["category"] == "home-living" ? "active" : "")" asp-controller="Shop" asp-action="Index" asp-route-category="home-living">Modern Living</a></li>
                 <li><a class="nav-link-item @(Context.Request.Query["category"] == "lifestyle-gear" ? "active" : "")" asp-controller="Shop" asp-action="Index" asp-route-category="lifestyle-gear">Lifestyle Gear</a></li>
             </ul>
 
             <!-- Search Bar -->
             <div class="search-bar-nav d-none d-md-block">
                 <span class="search-icon">🔍</span>
-                <input type="text" id="navSearchInput" placeholder="Search products, brands..." value="@Context.Request.Query["search"]" />
+                <input type="text" id="navSearchInput" placeholder="Search gear, tech, style..." value="@Context.Request.Query["search"]" />
             </div>
 
-            <!-- Actions (Cart & Admin) -->
+            <!-- Actions (Bag, Admin & Mobile Hamburger) -->
             <div class="nav-actions">
                 <button type="button" class="cart-button-trigger" id="cartTriggerBtn" aria-label="Open Cart">
-                    <span>🛒</span>
-                    <span>Cart</span>
+                    <span>🛍️</span>
+                    <span class="d-none d-sm-inline">Bag</span>
                     <span class="cart-count-badge" id="navCartBadge">0</span>
                 </button>
 
-                <a asp-controller="Admin" asp-action="Index" class="admin-pill-link" id="navAdminLink">
+                <a asp-controller="Admin" asp-action="Index" class="admin-pill-link d-none d-sm-inline-flex" id="navAdminLink">
                     <span>⚙️</span>
-                    <span class="d-none d-sm-inline">Admin Demo</span>
+                    <span class="d-none d-md-inline">Admin</span>
                 </a>
+
+                <!-- Mobile Hamburger Toggle -->
+                <button type="button" class="mobile-menu-toggle d-lg-none" id="mobileMenuBtn" aria-label="Open Mobile Navigation">
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                </button>
             </div>
         </div>
     </header>
+
+    <!-- Mobile Navigation Drawer Backdrop & Modal -->
+    <div id="mobileMenuBackdrop" class="mobile-menu-backdrop"></div>
+    <div id="mobileMenuDrawer" class="mobile-menu-drawer">
+        <div class="mobile-menu-header">
+            <a class="brand-logo" asp-controller="Home" asp-action="Index">
+                <div class="logo-icon-wrap">
+                    <svg class="brand-svg-mark" width="30" height="30" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="36" height="36" rx="9" fill="#0A0C10"/>
+                        <rect x="0.5" y="0.5" width="35" height="35" rx="8.5" stroke="rgba(255, 255, 255, 0.14)" stroke-width="1"/>
+                        <path d="M16.8 8L7.5 26.5H13.2L16.8 19V8Z" fill="#FFFFFF"/>
+                        <path d="M19.2 8L19.2 19L22.8 26.5H28.5L19.2 8Z" fill="#D4FF00"/>
+                    </svg>
+                </div>
+                <div class="brand-text-lockup">
+                    <span class="brand-name-main" style="font-size: 1.15rem;">NEXUS</span>
+                    <span class="brand-name-sub">STORE</span>
+                </div>
+            </a>
+            <button type="button" class="btn-close-drawer" id="mobileMenuCloseBtn" aria-label="Close Mobile Navigation">✕</button>
+        </div>
+
+        <!-- Mobile Search Input inside Drawer -->
+        <div class="mobile-search-wrap">
+            <form method="get" asp-controller="Shop" asp-action="Index" class="position-relative">
+                <span class="search-icon" style="position: absolute; left: 0.9rem; top: 50%; transform: translateY(-50%); color: #98a2b3;">🔍</span>
+                <input type="text" name="search" class="form-control rounded-pill ps-5 py-2" placeholder="Search gear, tech, style..." />
+            </form>
+        </div>
+
+        <!-- Mobile Navigation Links List -->
+        <div class="mobile-menu-body">
+            <div class="mobile-nav-group-title">Collections</div>
+            <ul class="mobile-nav-list">
+                <li><a class="mobile-nav-link" asp-controller="Home" asp-action="Index"><span>🏠 Home</span></a></li>
+                <li><a class="mobile-nav-link" asp-controller="Shop" asp-action="Index"><span>✦ All Collections</span></a></li>
+                <li><a class="mobile-nav-link" asp-controller="Shop" asp-action="Index" asp-route-category="electronics"><span>🎧 Tech & Audio</span></a></li>
+                <li><a class="mobile-nav-link" asp-controller="Shop" asp-action="Index" asp-route-category="home-living"><span>🛋️ Modern Living</span></a></li>
+                <li><a class="mobile-nav-link" asp-controller="Shop" asp-action="Index" asp-route-category="lifestyle-gear"><span>🎒 Lifestyle Gear</span></a></li>
+                <li><a class="mobile-nav-link" asp-controller="Shop" asp-action="Index" asp-route-sort="newest"><span>⚡ New Arrivals</span></a></li>
+            </ul>
+
+            <div class="mobile-nav-group-title mt-4">Order & Admin</div>
+            <ul class="mobile-nav-list">
+                <li><a class="mobile-nav-link" asp-controller="Orders" asp-action="Track"><span>📦 Track My Order</span></a></li>
+                <li><a class="mobile-nav-link" asp-controller="Admin" asp-action="Index"><span>⚙️ Admin Operations</span></a></li>
+            </ul>
+        </div>
+
+        <div class="mobile-menu-footer">
+            <div class="d-flex align-items-center gap-2 mb-1 text-dark font-monospace fw-bold" style="font-size: 0.78rem;">
+                <span>⚡ PROMO: USE CODE <strong>DEMO20</strong> FOR 20% OFF</span>
+            </div>
+            <div class="small text-muted" style="font-size: 0.76rem;">Free worldwide express shipping on orders over $100</div>
+        </div>
+    </div>
+
 
     <!-- Global Toast Container -->
     <div id="toastContainer" class="toast-nexus-container"></div>
@@ -67,16 +152,29 @@
     <div id="cartDrawer" class="cart-drawer">
         <div class="cart-drawer-header">
             <div class="cart-drawer-title">
-                <span>🛒</span>
-                <span>Your Cart (<span class="cart-count-badge">0</span>)</span>
+                <span>🛍️</span>
+                <span>Your Bag (<span class="cart-count-badge">0</span>)</span>
             </div>
             <button type="button" class="btn-close-drawer" id="cartDrawerCloseBtn">✕</button>
         </div>
 
+        <!-- Free Shipping Progress Meter -->
+        <div id="drawerFreeShippingBar" class="free-shipping-bar-wrap">
+            <div class="free-shipping-text">
+                <span>Add <strong>$100.00</strong> for <strong>Free Express Shipping</strong></span>
+                <span>0%</span>
+            </div>
+            <div class="free-shipping-track">
+                <div class="free-shipping-fill" style="width: 0%;"></div>
+            </div>
+        </div>
+
+        <!-- Dynamic Items Body -->
         <div class="cart-drawer-body" id="cartDrawerItemsContainer">
             <!-- Dynamic items rendered via nexus.js -->
         </div>
 
+        <!-- Footer -->
         <div class="cart-drawer-footer">
             <div class="cart-summary-line">
                 <span>Subtotal</span>
@@ -84,15 +182,18 @@
             </div>
             <div class="cart-summary-line total">
                 <span>Estimated Total</span>
-                <span id="drawerGrandTotal" style="color: var(--primary);">$0.00</span>
+                <span id="drawerGrandTotal">$0.00</span>
             </div>
             <div class="d-grid gap-2 mt-3">
                 <a asp-controller="Checkout" asp-action="Index" id="drawerCheckoutBtn" class="btn-nexus-primary text-center">
                     Proceed to Checkout →
                 </a>
-                <a asp-controller="Cart" asp-action="Index" class="btn-nexus-outline text-center">
-                    View Full Cart
+                <a asp-controller="Cart" asp-action="Index" class="btn-nexus-secondary text-center">
+                    View Shopping Bag
                 </a>
+            </div>
+            <div class="text-center mt-3 text-muted" style="font-size: 0.76rem; letter-spacing: 0.02em;">
+                🔒 256-bit SSL Encrypted • 30-Day Free Returns
             </div>
         </div>
     </div>
@@ -101,8 +202,8 @@
     <main role="main">
         @if (TempData["SuccessMessage"] != null)
         {
-            <div class="container mt-3">
-                <div class="alert alert-success alert-dismissible fade show d-flex align-items-center shadow-sm border-0" role="alert" style="background: #ecfdf5; color: #065f46;">
+            <div class="container-fluid px-3 px-md-4 max-w-1400 mt-3" style="max-width: 1400px; margin: 0 auto;">
+                <div class="alert alert-success alert-dismissible fade show d-flex align-items-center shadow-sm border-0" role="alert" style="background: #ecfdf5; color: #065f46; border-radius: 10px;">
                     <span class="me-2 fw-bold">✓</span>
                     <div>@TempData["SuccessMessage"]</div>
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -111,8 +212,8 @@
         }
         @if (TempData["ErrorMessage"] != null)
         {
-            <div class="container mt-3">
-                <div class="alert alert-danger alert-dismissible fade show d-flex align-items-center shadow-sm border-0" role="alert" style="background: #fef2f2; color: #991b1b;">
+            <div class="container-fluid px-3 px-md-4 max-w-1400 mt-3" style="max-width: 1400px; margin: 0 auto;">
+                <div class="alert alert-danger alert-dismissible fade show d-flex align-items-center shadow-sm border-0" role="alert" style="background: #fef2f2; color: #991b1b; border-radius: 10px;">
                     <span class="me-2 fw-bold">⚠️</span>
                     <div>@TempData["ErrorMessage"]</div>
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -123,83 +224,97 @@
         @RenderBody()
     </main>
 
-    <!-- Warm, Light & Radiant Solar Footer -->
+    <!-- Minimalist Premium Athletic Footer -->
     <footer class="nexus-footer">
         <div class="footer-container">
             <div>
-                <div class="brand-logo mb-3">
-                    <div class="logo-icon">✦</div>
-                    <span>NEXUS<span style="color: var(--primary);">STORE</span></span>
-                </div>
-                <p style="font-size: 0.92rem; max-width: 340px; margin-bottom: 1.5rem; color: #78716c;">
-                    A modern multi-category e-commerce demonstration built on ASP.NET 10 Core, showcasing clean architecture, responsive Razor Views, and seamless user experience.
+                <a class="brand-logo mb-3" asp-controller="Home" asp-action="Index">
+                    <div class="logo-icon-wrap">
+                        <svg class="brand-svg-mark" width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect width="36" height="36" rx="9" fill="#141820"/>
+                            <rect x="0.5" y="0.5" width="35" height="35" rx="8.5" stroke="rgba(255, 255, 255, 0.16)" stroke-width="1"/>
+                            <!-- Dual-Blade Aerodynamic Apex Delta -->
+                            <path d="M16.8 8L7.5 26.5H13.2L16.8 19V8Z" fill="#FFFFFF"/>
+                            <path d="M19.2 8L19.2 19L22.8 26.5H28.5L19.2 8Z" fill="#D4FF00"/>
+                        </svg>
+                    </div>
+                    <div class="brand-text-lockup">
+                        <span class="brand-name-main" style="color: #ffffff;">NEXUS</span>
+                        <span class="brand-name-sub" style="color: #98a2b3;">STORE</span>
+                    </div>
+                </a>
+                <p style="font-size: 0.88rem; max-width: 320px; margin-bottom: 1.5rem; color: #98a2b3; line-height: 1.6;">
+                    High-performance tech, modern living goods, and lifestyle essentials engineered for uncompromising performance and daily excellence.
                 </p>
-                <div class="d-flex gap-2">
-                    <span class="badge bg-warning-subtle text-dark border border-warning-subtle rounded-pill px-3 py-1 fw-bold">ASP.NET 10 Core</span>
-                    <span class="badge bg-warning-subtle text-dark border border-warning-subtle rounded-pill px-3 py-1 fw-bold">EF Core SQLite</span>
-                    <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-1 fw-bold">Responsive MVC</span>
+                <div class="d-flex gap-2 flex-wrap">
+                    <span class="badge bg-dark border border-secondary text-light px-2 py-1">ASP.NET 10 MVC</span>
+                    <span class="badge bg-dark border border-secondary text-light px-2 py-1">EF Core SQLite</span>
+                    <span class="badge border text-dark px-2 py-1" style="background: var(--accent-volt); border-color: var(--accent-volt);">Activewear D2C Style</span>
                 </div>
             </div>
 
             <div>
-                <div class="footer-title">Categories</div>
+                <div class="footer-title">Collections</div>
                 <ul class="footer-links">
-                    <li><a asp-controller="Shop" asp-action="Index" asp-route-category="electronics">Electronics & Tech</a></li>
+                    <li><a asp-controller="Shop" asp-action="Index">Shop All Products</a></li>
+                    <li><a asp-controller="Shop" asp-action="Index" asp-route-category="electronics">Tech & Audio</a></li>
                     <li><a asp-controller="Shop" asp-action="Index" asp-route-category="home-living">Modern Living</a></li>
-                    <li><a asp-controller="Shop" asp-action="Index" asp-route-category="lifestyle-gear">Everyday Gear</a></li>
-                    <li><a asp-controller="Shop" asp-action="Index">All Products</a></li>
+                    <li><a asp-controller="Shop" asp-action="Index" asp-route-category="lifestyle-gear">Lifestyle & EDC</a></li>
+                    <li><a asp-controller="Shop" asp-action="Index" asp-route-sort="newest">New Season Drops</a></li>
                 </ul>
             </div>
 
             <div>
-                <div class="footer-title">Quick Links</div>
+                <div class="footer-title">Customer Care</div>
                 <ul class="footer-links">
-                    <li><a asp-controller="Orders" asp-action="Track">Track Your Order</a></li>
-                    <li><a asp-controller="Cart" asp-action="Index">Shopping Bag</a></li>
-                    <li><a asp-controller="Admin" asp-action="Index">Admin Dashboard</a></li>
-                    <li><a asp-controller="Home" asp-action="Privacy">Store Policies</a></li>
+                    <li><a asp-controller="Orders" asp-action="Track">Track Your Package</a></li>
+                    <li><a asp-controller="Cart" asp-action="Index">View Shopping Bag</a></li>
+                    <li><a asp-controller="Checkout" asp-action="Index">Express Checkout</a></li>
+                    <li><a href="#benefits">Shipping & Returns</a></li>
+                    <li><a href="#benefits">30-Day Guarantee</a></li>
                 </ul>
             </div>
 
             <div>
-                <div class="footer-title">Client Demo Highlights</div>
-                <p style="font-size: 0.88rem; margin-bottom: 1rem; color: #78716c;">
-                    Designed to demonstrate high-converting layout, lightning-fast ASP.NET 10 performance, interactive slide-out cart, simulated checkout, and complete admin management.
+                <div class="footer-title">Admin & Dev</div>
+                <ul class="footer-links">
+                    <li><a asp-controller="Admin" asp-action="Index">Admin KPI Dashboard</a></li>
+                    <li><a asp-controller="Admin" asp-action="Products">Inventory Catalog</a></li>
+                    <li><a asp-controller="Admin" asp-action="Orders">Fulfillment Queue</a></li>
+                    <li><a asp-controller="Admin" asp-action="CreateProduct">Create Product</a></li>
+                    <li><a asp-controller="Admin" asp-action="ResetDatabase" onclick="return confirm('Reset database back to initial sample state?')">Reset Sample DB</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <div class="footer-title">VIP Drop Club</div>
+                <p style="font-size: 0.84rem; color: #98a2b3; margin-bottom: 1rem;">
+                    Subscribe to receive early access to seasonal drops and an instant <strong>10% OFF</strong> promo code.
                 </p>
-                <div class="d-flex align-items-center gap-2">
-                    <a asp-controller="Admin" asp-action="Index" class="btn btn-sm btn-nexus-outline">
-                        ⚡ Open Admin Demo
-                    </a>
-                </div>
+                <form onsubmit="event.preventDefault(); showToast('🎉 Welcome! Promo code VIP10 unlocked.');" class="d-flex flex-column gap-2">
+                    <input type="email" placeholder="Enter your email address" class="form-control form-control-sm rounded-pill px-3 py-2 border-0 bg-dark text-white" style="border: 1px solid rgba(255,255,255,0.2) !important;" required />
+                    <button type="submit" class="btn-nexus-volt w-100 py-2" style="font-size: 0.8rem;">Join the Club</button>
+                </form>
             </div>
         </div>
 
         <div class="footer-bottom">
-            <div>&copy; 2026 NexusStore Demo • Designed for Freelance Showcase • ASP.NET 10 Core</div>
-            <div class="d-flex gap-3">
-                <a asp-controller="Home" asp-action="Privacy">Privacy Policy</a>
-                <a href="#top">Back to top ↑</a>
+            <div>
+                © 2026 NEXUS STORE. All Rights Reserved. Production-Grade D2C Architecture Demo.
+            </div>
+            <div class="d-flex gap-3 align-items-center flex-wrap" style="font-size: 0.78rem; letter-spacing: 0.05em; text-transform: uppercase;">
+                <span>🔒 Secure Checkout:</span>
+                <span class="badge bg-light text-dark">VISA</span>
+                <span class="badge bg-light text-dark">MASTERCARD</span>
+                <span class="badge bg-light text-dark">APPLE PAY</span>
+                <span class="badge bg-light text-dark">GOOGLE PAY</span>
+                <span class="badge bg-light text-dark">AMEX</span>
             </div>
         </div>
     </footer>
 
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/nexus.js" asp-append-version="true"></script>
-    <script>
-        // Initialize cart counts on initial page load
-        document.addEventListener('DOMContentLoaded', () => {
-            fetch('/Cart/GetCartData')
-                .then(r => r.json())
-                .then(d => {
-                    const badges = document.querySelectorAll('.cart-count-badge');
-                    badges.forEach(b => {
-                        b.textContent = d.totalItems;
-                        b.style.display = d.totalItems > 0 ? 'inline-block' : 'none';
-                    });
-                })
-                .catch(() => {});
-        });
-    </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

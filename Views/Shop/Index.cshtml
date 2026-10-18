@@ -1,27 +1,27 @@
 @model NexusStore.Models.ViewModels.ShopViewModel
 @{
-    ViewData["Title"] = "Catalog & Shop";
+    ViewData["Title"] = "Catalog & Collections";
 }
 
-<div class="container-fluid px-3 px-md-4 py-4 max-w-1320" style="max-width: 1320px; margin: 0 auto;">
-    <!-- Breadcrumb & Title -->
+<div class="container-fluid px-3 px-md-4 py-4 max-w-1400" style="max-width: 1400px; margin: 0 auto;">
+    <!-- Breadcrumb & Header Title -->
     <div class="mb-4">
         <nav aria-label="breadcrumb">
-            <ol class="breadcrumb mb-2" style="font-size: 0.85rem;">
+            <ol class="breadcrumb mb-2" style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em;">
                 <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Home</a></li>
-                <li class="breadcrumb-item active" aria-current="page">Shop</li>
+                <li class="breadcrumb-item"><a asp-controller="Shop" asp-action="Index">Collections</a></li>
                 @if (!string.IsNullOrEmpty(Model.SelectedCategorySlug))
                 {
                     <li class="breadcrumb-item active" aria-current="page">@Model.Categories.FirstOrDefault(c => c.Slug == Model.SelectedCategorySlug)?.Name</li>
                 }
             </ol>
         </nav>
-        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
             <div>
-                <h1 style="font-size: 2.2rem; font-weight: 800; margin-bottom: 0.2rem;">
+                <h1 style="font-family: var(--font-heading); font-size: 2.4rem; font-weight: 900; text-transform: uppercase; letter-spacing: -0.02em; margin-bottom: 0.2rem;">
                     @if (!string.IsNullOrEmpty(Model.SearchQuery))
                     {
-                        <span>Search Results for "@Model.SearchQuery"</span>
+                        <span>Results for "@Model.SearchQuery"</span>
                     }
                     else if (!string.IsNullOrEmpty(Model.SelectedCategorySlug))
                     {
@@ -29,10 +29,10 @@
                     }
                     else
                     {
-                        <span>All Products</span>
+                        <span>All Collections</span>
                     }
                 </h1>
-                <p class="text-muted mb-0">Showing @Model.TotalCount items in catalog</p>
+                <p class="text-muted mb-0" style="font-size: 0.9rem;">Showing @Model.TotalCount high-performance items</p>
             </div>
 
             <!-- Sorting Dropdown -->
@@ -43,20 +43,49 @@
                 {
                     <input type="hidden" name="inStock" value="true" />
                 }
-                <label for="sortSelect" class="text-muted fw-bold small text-nowrap">Sort by:</label>
-                <select name="sort" id="sortSelect" class="form-select form-select-sm rounded-pill" style="min-width: 170px;" onchange="this.form.submit()">
+                <label for="sortSelect" class="text-muted fw-bold small text-nowrap" style="font-family: var(--font-heading); text-transform: uppercase; font-size: 0.78rem;">Sort By:</label>
+                <select name="sort" id="sortSelect" class="form-select form-select-sm rounded-pill px-3 py-2 border" style="min-width: 190px; font-weight: 600;" onchange="this.form.submit()">
                     <option value="featured" selected="@(Model.SortBy == "featured")">Featured & Top Picks</option>
                     <option value="price-asc" selected="@(Model.SortBy == "price-asc")">Price: Low to High</option>
                     <option value="price-desc" selected="@(Model.SortBy == "price-desc")">Price: High to Low</option>
-                    <option value="rating" selected="@(Model.SortBy == "rating")">Highest Customer Rating</option>
-                    <option value="newest" selected="@(Model.SortBy == "newest")">Newest Arrivals</option>
+                    <option value="rating" selected="@(Model.SortBy == "rating")">Highest Rated</option>
+                    <option value="newest" selected="@(Model.SortBy == "newest")">Newest Drops</option>
                 </select>
             </form>
         </div>
     </div>
 
+    <!-- Quick Category Horizontal Pills Bar -->
+    <div class="d-flex gap-2 mb-4 overflow-auto pb-2" style="scrollbar-width: none;">
+        <a asp-action="Index" asp-route-search="@Model.SearchQuery" asp-route-sort="@Model.SortBy" 
+           class="category-quick-pill @(string.IsNullOrEmpty(Model.SelectedCategorySlug) && !Model.SelectedCategoryId.HasValue ? "active" : "")">
+            <span>All Gear</span>
+            <span class="pill-count">@Model.TotalCount</span>
+        </a>
+        @foreach (var cat in Model.Categories)
+        {
+            var isCatActive = Model.SelectedCategorySlug == cat.Slug || Model.SelectedCategoryId == cat.Id;
+            <a asp-action="Index" asp-route-category="@cat.Slug" asp-route-search="@Model.SearchQuery" asp-route-sort="@Model.SortBy" 
+               class="category-quick-pill @(isCatActive ? "active" : "")">
+                <span>@cat.Name</span>
+            </a>
+        }
+    </div>
+
+    <!-- Mobile Filter Toggle Button -->
+    <div class="d-lg-none mb-3">
+        <button type="button" class="btn btn-outline-dark w-100 py-2 fw-bold d-flex align-items-center justify-content-center gap-2 rounded-pill" onclick="toggleMobileFilters()">
+            <span>⚙️ Filter & Refine Options</span>
+            @if (Model.OnlyInStock || Model.MinPrice.HasValue || Model.MaxPrice.HasValue || !string.IsNullOrEmpty(Model.SelectedCategorySlug))
+            {
+                <span class="badge bg-dark text-white rounded-pill">Active</span>
+            }
+        </button>
+    </div>
+
     <!-- Shop Content Grid with Sidebar -->
-    <div class="shop-layout" style="margin: 0; padding: 0;">
+    <div class="shop-layout">
+
         <!-- Filters Sidebar -->
         <aside class="filter-sidebar">
             <form method="get" asp-action="Index" id="filterForm">
@@ -100,7 +129,7 @@
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" name="inStock" value="true" id="checkInStock" 
                                @(Model.OnlyInStock ? "checked" : "") onchange="this.form.submit()">
-                        <label class="form-check-label small" for="checkInStock">
+                        <label class="form-check-label small fw-semibold" for="checkInStock">
                             In Stock Only
                         </label>
                     </div>
@@ -111,17 +140,17 @@
                     <div class="filter-title">Price Range ($)</div>
                     <div class="d-flex gap-2 align-items-center mb-2">
                         <input type="number" name="minPrice" class="form-control form-control-sm" placeholder="Min" value="@Model.MinPrice" min="0" step="10" />
-                        <span>-</span>
+                        <span class="text-muted">-</span>
                         <input type="number" name="maxPrice" class="form-control form-control-sm" placeholder="Max" value="@Model.MaxPrice" min="0" step="10" />
                     </div>
-                    <button type="submit" class="btn btn-sm btn-nexus-primary w-100 rounded-pill">Apply Filter</button>
+                    <button type="submit" class="btn btn-sm btn-nexus-primary w-100 rounded-pill py-2">Apply Filter</button>
                 </div>
 
                 <!-- Reset button -->
                 @if (!string.IsNullOrEmpty(Model.SearchQuery) || !string.IsNullOrEmpty(Model.SelectedCategorySlug) || Model.SelectedCategoryId.HasValue || Model.OnlyInStock || Model.MinPrice.HasValue || Model.MaxPrice.HasValue)
                 {
                     <div class="mt-3 text-center">
-                        <a asp-action="Index" class="text-danger small text-decoration-none">
+                        <a asp-action="Index" class="text-danger small text-decoration-none fw-bold">
                             ✕ Clear All Filters
                         </a>
                     </div>
@@ -133,10 +162,10 @@
         <main>
             @if (Model.Products.Count == 0)
             {
-                <div class="text-center py-5 bg-white rounded-4 border p-4 shadow-sm">
-                    <div style="font-size: 3.5rem;">🔍</div>
-                    <h3 class="mt-3 fw-bold">No Products Found</h3>
-                    <p class="text-muted">No items matched your current filter or search criteria.</p>
+                <div class="text-center py-5 bg-white rounded-3 border p-5 shadow-sm">
+                    <div style="font-size: 3rem;">🔍</div>
+                    <h3 class="mt-3 fw-bold" style="font-family: var(--font-heading); text-transform: uppercase;">No Products Found</h3>
+                    <p class="text-muted">No items matched your current filter criteria.</p>
                     <a asp-action="Index" class="btn-nexus-primary mt-2">View All Products</a>
                 </div>
             }
@@ -145,22 +174,44 @@
                 <div class="product-grid">
                     @foreach (var product in Model.Products)
                     {
+                        var badgeClass = "top-seller";
+                        if (!string.IsNullOrEmpty(product.Badge))
+                        {
+                            if (product.Badge.Contains("Sale") || product.Badge.Contains("%") || product.Badge.Contains("Off"))
+                            {
+                                badgeClass = "sale";
+                            }
+                            else if (product.Badge.Contains("New") || product.Badge.Contains("Drop"))
+                            {
+                                badgeClass = "new";
+                            }
+                        }
+
                         <div class="product-card" id="catalog-product-@product.Id">
                             <div class="product-img-wrap">
                                 @if (!string.IsNullOrEmpty(product.Badge))
                                 {
-                                    <span class="product-badge @(product.Badge.Contains("Sale") || product.Badge.Contains("%") ? "sale" : "top-seller")">
+                                    <span class="product-badge @badgeClass">
                                         @product.Badge
                                     </span>
                                 }
                                 else if (!product.InStock)
                                 {
-                                    <span class="product-badge" style="background: #94a3b8;">Out of Stock</span>
+                                    <span class="product-badge" style="background: #64748b; color: #ffffff;">Sold Out</span>
                                 }
 
                                 <a asp-action="Details" asp-route-id="@product.Id" asp-route-slug="@product.Slug">
                                     <img src="@product.ImageUrl" alt="@product.Name" loading="lazy" />
                                 </a>
+
+                                @if (product.InStock)
+                                {
+                                    <div class="product-quick-add-overlay">
+                                        <button type="button" class="btn-card-quick-add" data-quick-add="@product.Id">
+                                            + Quick Add to Bag
+                                        </button>
+                                    </div>
+                                }
                             </div>
 
                             <div class="product-body">
@@ -197,7 +248,7 @@
                                     }
                                     else
                                     {
-                                        <span class="badge bg-secondary text-white py-2 px-2" style="font-size: 0.75rem;">Sold Out</span>
+                                        <span class="badge bg-secondary text-white py-1 px-2" style="font-size: 0.72rem;">Out of Stock</span>
                                     }
                                 </div>
                             </div>

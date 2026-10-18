@@ -4,19 +4,19 @@
     var related = ViewBag.RelatedProducts as List<NexusStore.Models.Product> ?? new List<NexusStore.Models.Product>();
 }
 
-<div class="container-fluid px-3 px-md-4 py-4 max-w-1320" style="max-width: 1200px; margin: 0 auto;">
+<div class="container-fluid px-3 px-md-4 py-4 max-w-1400" style="max-width: 1300px; margin: 0 auto;">
     <!-- Breadcrumb -->
     <nav aria-label="breadcrumb" class="mb-4">
-        <ol class="breadcrumb mb-2" style="font-size: 0.85rem;">
+        <ol class="breadcrumb mb-2" style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em;">
             <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Home</a></li>
-            <li class="breadcrumb-item"><a asp-controller="Shop" asp-action="Index">Shop</a></li>
+            <li class="breadcrumb-item"><a asp-controller="Shop" asp-action="Index">Collections</a></li>
             <li class="breadcrumb-item"><a asp-controller="Shop" asp-action="Index" asp-route-category="@Model.Category?.Slug">@Model.Category?.Name</a></li>
             <li class="breadcrumb-item active" aria-current="page">@Model.Name</li>
         </ol>
     </nav>
 
     <!-- Product Details Main Layout -->
-    <div class="product-detail-layout" style="margin: 0; padding: 0;">
+    <div class="product-detail-layout">
         <!-- Left: Product Image Showcase -->
         <div>
             <div class="gallery-main">
@@ -25,47 +25,45 @@
 
             @if (!string.IsNullOrEmpty(Model.SecondaryImageUrl))
             {
-                <div class="d-flex gap-3">
+                <div class="thumbnail-strip">
                     <img src="@Model.ImageUrl" 
                          alt="Main view" 
-                         class="rounded-3 border border-2 border-primary" 
-                         style="width: 80px; height: 80px; object-fit: cover; cursor: pointer;"
-                         onclick="document.getElementById('mainProductImage').src = this.src" />
+                         class="thumb-item active" 
+                         onclick="switchMainImage(this, '@Model.ImageUrl')" />
                     <img src="@Model.SecondaryImageUrl" 
                          alt="Alternate view" 
-                         class="rounded-3 border" 
-                         style="width: 80px; height: 80px; object-fit: cover; cursor: pointer;"
-                         onclick="document.getElementById('mainProductImage').src = this.src" />
+                         class="thumb-item" 
+                         onclick="switchMainImage(this, '@Model.SecondaryImageUrl')" />
                 </div>
             }
         </div>
 
-        <!-- Right: Information & Actions -->
+        <!-- Right: Information & Buy Box -->
         <div>
             <div class="d-flex align-items-center gap-2 mb-2">
                 <span class="product-category-chip mb-0">@Model.Category?.Name</span>
                 <span class="text-muted">•</span>
-                <span class="small text-muted">SKU: @Model.Sku</span>
+                <span class="small text-muted font-monospace">SKU: @Model.Sku</span>
             </div>
 
-            <h1 style="font-size: 2.4rem; font-weight: 800; line-height: 1.2; margin-bottom: 0.75rem;">
+            <h1 style="font-family: var(--font-heading); font-size: 2.3rem; font-weight: 900; line-height: 1.15; text-transform: uppercase; letter-spacing: -0.02em; margin-bottom: 0.75rem;">
                 @Model.Name
             </h1>
 
-            <!-- Ratings -->
+            <!-- Ratings & Social Trust -->
             <div class="d-flex align-items-center gap-2 mb-3">
-                <div class="product-rating mb-0" style="font-size: 1rem;">
+                <div class="product-rating mb-0" style="font-size: 0.95rem;">
                     <span>★</span>
                     <span class="product-rating-score">@Model.Rating.ToString("0.0")</span>
                 </div>
                 <span class="text-muted small">(@Model.ReviewCount verified reviews)</span>
                 <span class="text-muted">•</span>
-                <span class="badge bg-success-subtle text-success border border-success-subtle">Verified Authentic</span>
+                <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2 py-1">✓ Verified Authentic</span>
             </div>
 
             <!-- Price -->
-            <div class="d-flex align-items-baseline gap-3 mb-4">
-                <span style="font-size: 2.2rem; font-weight: 800; font-family: var(--font-heading); color: #0f172a;">
+            <div class="d-flex align-items-baseline gap-3 mb-3">
+                <span style="font-size: 2.4rem; font-weight: 900; font-family: var(--font-heading); color: #0a0c10;">
                     $@Model.Price.ToString("0.00")
                 </span>
                 @if (Model.CompareAtPrice.HasValue && Model.CompareAtPrice > Model.Price)
@@ -73,46 +71,60 @@
                     <span style="font-size: 1.3rem; color: #94a3b8; text-decoration: line-through;">
                         $@Model.CompareAtPrice.Value.ToString("0.00")
                     </span>
-                    <span class="badge bg-danger rounded-pill px-3 py-1 fw-bold">
+                    <span class="badge rounded-pill px-3 py-1 fw-bold" style="background: var(--brand-red); color: #ffffff; font-size: 0.8rem;">
                         Save @Model.DiscountPercent%
                     </span>
                 }
             </div>
 
-            <!-- Stock status indicator -->
+            <!-- Live Stock Status Pulse Indicator -->
             <div class="mb-4">
                 @if (Model.StockQuantity > 5)
                 {
-                    <div class="d-flex align-items-center gap-2 text-success fw-bold small">
-                        <span style="width: 10px; height: 10px; background: #10b981; border-radius: 50%; display: inline-block;"></span>
-                        In Stock (@Model.StockQuantity units ready to ship)
+                    <div class="stock-badge-pulse in-stock">
+                        <span class="pulse-dot"></span>
+                        <span>In Stock (@Model.StockQuantity units ready to dispatch in 24h)</span>
                     </div>
                 }
                 else if (Model.StockQuantity > 0)
                 {
-                    <div class="d-flex align-items-center gap-2 text-warning fw-bold small">
-                        <span style="width: 10px; height: 10px; background: #f59e0b; border-radius: 50%; display: inline-block;"></span>
-                        Hurry! Only @Model.StockQuantity left in stock
+                    <div class="stock-badge-pulse low-stock">
+                        <span class="pulse-dot" style="background: #f59e0b;"></span>
+                        <span>Hurry! Only @Model.StockQuantity units left in current drop</span>
                     </div>
                 }
                 else
                 {
-                    <div class="d-flex align-items-center gap-2 text-danger fw-bold small">
-                        <span style="width: 10px; height: 10px; background: #ef4444; border-radius: 50%; display: inline-block;"></span>
-                        Currently Out of Stock
+                    <div class="stock-badge-pulse" style="background: #fef2f2; color: #991b1b; border: 1px solid #fecaca;">
+                        <span>Currently Sold Out</span>
                     </div>
                 }
             </div>
 
-            <p style="color: #475569; font-size: 1.05rem; line-height: 1.7; margin-bottom: 1.5rem;">
+            <p style="color: #475467; font-size: 1.02rem; line-height: 1.7; margin-bottom: 1.5rem;">
                 @Model.Description
             </p>
+
+            <!-- Size / Fit Selector Pills (Fuaark / Activewear Style) -->
+            <div class="size-selector-wrap">
+                <div class="size-selector-label">
+                    <span>Select Size / Fit: <strong id="selectedSizeLabel" style="color: #0a0c10;">M (Standard Fit)</strong></span>
+                    <a href="#size-guide" class="text-muted text-decoration-underline" style="font-size: 0.76rem; text-transform: none;">Size & Fit Guide</a>
+                </div>
+                <div class="size-pill-group">
+                    <button type="button" class="size-pill-btn" data-size="S (Slim Fit)">S</button>
+                    <button type="button" class="size-pill-btn active" data-size="M (Standard Fit)">M</button>
+                    <button type="button" class="size-pill-btn" data-size="L (Relaxed Fit)">L</button>
+                    <button type="button" class="size-pill-btn" data-size="XL (Oversized)">XL</button>
+                    <button type="button" class="size-pill-btn" data-size="XXL (Extended)">XXL</button>
+                </div>
+            </div>
 
             <!-- Feature Specs -->
             @if (!string.IsNullOrEmpty(Model.Features))
             {
                 <div class="mb-4">
-                    <div class="small fw-bold text-uppercase text-muted mb-2">Key Specifications</div>
+                    <div class="small fw-bold text-uppercase text-muted mb-2" style="font-family: var(--font-heading); letter-spacing: 0.05em;">Engineered Specs</div>
                     <div>
                         @foreach (var feat in Model.Features.Split(';', StringSplitOptions.RemoveEmptyEntries))
                         {
@@ -122,26 +134,36 @@
                 </div>
             }
 
-            <hr class="my-4" style="border-color: #e2e8f0;" />
+            <hr class="my-4" style="border-color: var(--border-color);" />
 
-            <!-- Add to Cart Form -->
+            <!-- Add to Cart & Buy Now Form -->
             @if (Model.InStock)
             {
-                <div class="d-flex align-items-center gap-3 mb-4">
-                    <!-- Quantity Stepper -->
-                    <div class="d-flex align-items-center border rounded-pill bg-light p-1">
-                        <button type="button" class="btn btn-sm btn-link text-dark text-decoration-none px-3" onclick="adjustDetailQty(-1)">−</button>
-                        <input type="number" id="detailQtyInput" value="1" min="1" max="@Model.StockQuantity" 
-                               class="form-control form-control-sm text-center border-0 bg-transparent fw-bold" 
-                               style="width: 50px;" readonly />
-                        <button type="button" class="btn btn-sm btn-link text-dark text-decoration-none px-3" onclick="adjustDetailQty(1)">+</button>
+                <div class="d-flex flex-column gap-3 mb-4">
+                    <div class="d-flex align-items-center gap-3">
+                        <!-- Quantity Stepper -->
+                        <div class="d-flex align-items-center border rounded-pill bg-light p-1" style="border-color: var(--border-color) !important;">
+                            <button type="button" class="btn btn-sm btn-link text-dark text-decoration-none px-3" onclick="adjustDetailQty(-1)">−</button>
+                            <input type="number" id="detailQtyInput" value="1" min="1" max="@Model.StockQuantity" 
+                                   class="form-control form-control-sm text-center border-0 bg-transparent fw-bold" 
+                                   style="width: 50px;" readonly />
+                            <button type="button" class="btn btn-sm btn-link text-dark text-decoration-none px-3" onclick="adjustDetailQty(1)">+</button>
+                        </div>
+
+                        <!-- Add to Bag Button -->
+                        <button type="button" 
+                                class="btn-nexus-primary flex-grow-1 py-3" 
+                                id="btnDetailAddToCart"
+                                onclick="addToCart(@Model.Id, parseInt(document.getElementById('detailQtyInput').value) || 1)">
+                            <span>🛍️ Add to Bag</span>
+                        </button>
                     </div>
 
+                    <!-- Buy Now Button -->
                     <button type="button" 
-                            class="btn-nexus-primary flex-grow-1 py-3" 
-                            id="btnDetailAddToCart"
-                            onclick="addToCart(@Model.Id, parseInt(document.getElementById('detailQtyInput').value) || 1)">
-                        <span>🛍️ Add to Cart</span>
+                            class="btn-nexus-volt w-100 py-3" 
+                            onclick="buyNowDirect(@Model.Id)">
+                        ⚡ Buy Now — Instant Checkout →
                     </button>
                 </div>
             }
@@ -150,15 +172,19 @@
                 <button class="btn btn-secondary w-100 py-3 rounded-pill mb-4" disabled>Out of Stock</button>
             }
 
-            <!-- Trust Badges Under Add To Cart -->
-            <div class="border rounded-3 p-3 bg-white shadow-sm">
+            <!-- Trust Accordion -->
+            <div class="border rounded-3 p-3 bg-white shadow-sm mb-4">
                 <div class="d-flex align-items-center gap-3 mb-2">
-                    <span style="font-size: 1.2rem;">🚚</span>
-                    <span class="small text-muted"><strong>Fast Shipping:</strong> Dispatched within 24 hours with full tracking</span>
+                    <span style="font-size: 1.2rem;">🚀</span>
+                    <span class="small text-muted"><strong>Priority Dispatch:</strong> Dispatched in 24 hours with end-to-end tracking.</span>
+                </div>
+                <div class="d-flex align-items-center gap-3 mb-2">
+                    <span style="font-size: 1.2rem;">🔄</span>
+                    <span class="small text-muted"><strong>30-Day Risk Free:</strong> Easy returns & size exchanges without questions.</span>
                 </div>
                 <div class="d-flex align-items-center gap-3">
-                    <span style="font-size: 1.2rem;">🔄</span>
-                    <span class="small text-muted"><strong>30-Day Returns:</strong> If you're not completely satisfied, return free</span>
+                    <span style="font-size: 1.2rem;">🔒</span>
+                    <span class="small text-muted"><strong>Direct Authenticity:</strong> Backed by our standard 1-year product warranty.</span>
                 </div>
             </div>
         </div>
@@ -168,7 +194,12 @@
     @if (related.Any())
     {
         <div class="mt-5 pt-5 border-top">
-            <h2 class="section-title mb-4">Related in @Model.Category?.Name</h2>
+            <div class="section-header">
+                <div>
+                    <h2 class="section-title">Pairs Well With</h2>
+                    <div class="section-subtitle">Recommended pieces from the @Model.Category?.Name collection.</div>
+                </div>
+            </div>
             <div class="product-grid">
                 @foreach (var rel in related)
                 {
@@ -177,6 +208,11 @@
                             <a asp-action="Details" asp-route-id="@rel.Id" asp-route-slug="@rel.Slug">
                                 <img src="@rel.ImageUrl" alt="@rel.Name" loading="lazy" />
                             </a>
+                            <div class="product-quick-add-overlay">
+                                <button type="button" class="btn-card-quick-add" data-quick-add="@rel.Id">
+                                    + Quick Add
+                                </button>
+                            </div>
                         </div>
                         <div class="product-body">
                             <div class="product-category-chip">@rel.Category?.Name</div>
@@ -197,6 +233,15 @@
 
 @section Scripts {
     <script>
+        function switchMainImage(thumbEl, newSrc) {
+            document.querySelectorAll('.thumb-item').forEach(t => t.classList.remove('active'));
+            thumbEl.classList.add('active');
+            const mainImg = document.getElementById('mainProductImage');
+            if (mainImg) {
+                mainImg.src = newSrc;
+            }
+        }
+
         function adjustDetailQty(delta) {
             const input = document.getElementById('detailQtyInput');
             let current = parseInt(input.value) || 1;
@@ -205,6 +250,12 @@
             if (current < 1) current = 1;
             if (current > max) current = max;
             input.value = current;
+        }
+
+        async function buyNowDirect(productId) {
+            const qty = parseInt(document.getElementById('detailQtyInput').value) || 1;
+            await addToCart(productId, qty);
+            window.location.href = '/Checkout';
         }
     </script>
 }
